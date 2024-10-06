@@ -16,7 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Data\" />
     <Folder Include="Shared\" />
     <Folder Include="Services\" />
   </ItemGroup>

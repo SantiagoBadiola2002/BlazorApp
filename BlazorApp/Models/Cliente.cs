@@ -2,20 +2,28 @@
 {
     public class Cliente
     {
-        public string Cedula { get; set; }
-        public DateTime FechaRegistro { get; set; }
-        public string Estado { get; set; } //  (Esperando, Atendido, etc.)
+        public string Cedula { get; private set; }
+        public DateTime FechaRegistro { get; private set; }
+        public EstadoCliente Estado { get; private set; }
 
-        public void Registrar()
+        public Cliente(string cedula)
         {
-            // Lógica para registrar al cliente en la cola
+            Cedula = cedula;
+            FechaRegistro = DateTime.Now;
+            Estado = EstadoCliente.Esperando;
         }
 
-        public void ActualizarEstado(string nuevoEstado)
+        public Cliente(string cedula, DateTime fechaRegistro, EstadoCliente estado)
+        {
+            Cedula = cedula;
+            FechaRegistro = fechaRegistro;
+            Estado = estado;
+        }
+
+        public void ActualizarEstado(EstadoCliente nuevoEstado)
         {
             Estado = nuevoEstado;
-            // Lógica para actualizar el estado en el sistema
+            // Lógica adicional para actualizar el estado en el sistema
         }
-
     }
 }
