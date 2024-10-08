@@ -32,7 +32,7 @@
         {
             if (puesto.EstaLibre && operario.EstaDisponible)
             {
-                puesto.Ocupar(operario);
+                puesto.Ocupar();
             }
         }
 

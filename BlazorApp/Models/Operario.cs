@@ -10,12 +10,20 @@
 
         public Operario() { }
 
+        public Operario(int id, string nombre, PuestoAtencion puestoAsignado, bool estaDisponible, int oficinaId)
+        {
+            Id = id;
+            Nombre = nombre;
+            PuestoAsignado = puestoAsignado;
+            EstaDisponible = estaDisponible;
+            OficinaId = oficinaId;
+        }
 
         public void AtenderCliente(Cliente cliente)
         {
             cliente.ActualizarEstado(EstadoCliente.Atendido);
             EstaDisponible = false;
-            PuestoAsignado.Ocupar(this); // Asegurar que el puesto también esté marcado como ocupado
+            PuestoAsignado.Ocupar(); // Asegurar que el puesto también esté marcado como ocupado
         }
 
         public void LiberarPuesto()

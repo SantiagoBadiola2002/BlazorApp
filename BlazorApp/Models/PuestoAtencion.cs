@@ -5,18 +5,33 @@
         public int Id { get; set; } 
         public int Numero { get; set; } 
         public bool EstaLibre { get; set; } // Estado del puesto (libre o ocupado)
-        public Operario OperarioAsignado { get; set; }
-        public String OficinaId { get; set; }
+        public int IdOperarioAsignado { get; set; }
+        public int OficinaId { get; set; }
+
+        public PuestoAtencion() { 
+        }
+        public PuestoAtencion(int id, int numero, bool estaLibre, int operarioAsignado, int oficinaId)
+        {
+            Id = id;
+            Numero = numero;
+            EstaLibre = estaLibre;
+            IdOperarioAsignado = operarioAsignado;
+            OficinaId = oficinaId;
+        }
 
         public void Liberar()
         {
             EstaLibre = true;
         }
 
-        public void Ocupar(Operario operario)
+        public void Ocupar()
         {
-            OperarioAsignado = operario;
             EstaLibre = false;
+        }
+
+        public void asignarOperario(int IdOperario)
+        {
+            IdOperarioAsignado = IdOperario;
         }
     }
 

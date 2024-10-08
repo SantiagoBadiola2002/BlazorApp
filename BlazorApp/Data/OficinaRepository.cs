@@ -4,15 +4,15 @@ namespace BlazorApp.Data
 {
     public class OficinaRepository : IOficinaRepository
     {
-        private List<Oficina> _oficinas;
+        private readonly List<Oficina> _oficinas;
 
         public OficinaRepository()
         {
             _oficinas = new List<Oficina>
-            {
-                //new Oficina (1, "Oficina Central"),
-                //new Oficina (2, "Oficina Norte")
-            };
+        {
+            CrearOficina1()
+        };
+
         }
 
         public Oficina ObtenerOficinaPorId(int id)
@@ -51,6 +51,43 @@ namespace BlazorApp.Data
             {
                 _oficinas.Remove(oficina);
             }
+        }
+
+        private Oficina CrearOficina1()
+        {
+            // Crear los puestos de atención. PuestoAtencion -> (Id, Numero, EstaLibre, IdOperarioAsignado, OficinaId)
+            List<PuestoAtencion> puestosAtencion = new List<PuestoAtencion>
+        {
+            new PuestoAtencion(111, 1, true, 1, 1),
+            new PuestoAtencion(222, 2, true, 2, 1),
+            new PuestoAtencion(333, 3, true, 3, 1)
+        };
+
+            // Crear los operarios directamente vinculados a sus puestos. Operario -> ( Id, Nombre, PuestoAsignado, EstaDisponible, OficinaId)
+            List<Operario> operarios = new List<Operario>
+        {
+            new Operario(1, "Operario 1", puestosAtencion[0], true, 1),
+            new Operario(2, "Operario 2", puestosAtencion[1], true, 1),
+            new Operario(3, "Operario 3", puestosAtencion[2], true, 1)
+        };
+
+            // Crear los clientes en espera con la fecha actual si no es necesario pasar una específica. Cliente -> (Cedula, FechaRegistro, Estado)
+            List<Cliente> clientesEnEspera = new List<Cliente>
+        {
+            new Cliente("111111", DateTime.Today, EstadoCliente.Esperando),
+            new Cliente("222222", DateTime.Today, EstadoCliente.Esperando),
+            new Cliente("333333", DateTime.Today, EstadoCliente.Esperando)
+        };
+
+            // Crear la oficina con sus operarios, clientes y puestos
+            return new Oficina
+            {
+                Id = 1,
+                Nombre = "Oficina 1",
+                Operarios = operarios,
+                ClientesEnEspera = clientesEnEspera,
+                PuestosDeAtencion = puestosAtencion
+            };
         }
     }
 }
