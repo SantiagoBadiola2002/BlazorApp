@@ -32,6 +32,8 @@
         public void asignarOperario(int IdOperario)
         {
             IdOperarioAsignado = IdOperario;
+            Ocupar();
+
         }
     }
 

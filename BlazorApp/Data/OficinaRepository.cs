@@ -5,14 +5,20 @@ namespace BlazorApp.Data
     public class OficinaRepository : IOficinaRepository
     {
         private readonly List<Oficina> _oficinas;
+        private readonly IOperarioRepository _operarioRepository;
+        private readonly IClienteRepository _clienteRepository;
 
-        public OficinaRepository()
+        public OficinaRepository(IOperarioRepository operarioRepository, IClienteRepository clienteRepository)
         {
+            _operarioRepository = operarioRepository;
+            _clienteRepository = clienteRepository;
+
             _oficinas = new List<Oficina>
-        {
-            CrearOficina1()
-        };
+            {
+                CrearOficina1()
+            };
 
+            MostrarDatosOficina(_oficinas.FirstOrDefault());
         }
 
         public Oficina ObtenerOficinaPorId(int id)
@@ -55,31 +61,18 @@ namespace BlazorApp.Data
 
         private Oficina CrearOficina1()
         {
-            // Crear los puestos de atención. PuestoAtencion -> (Id, Numero, EstaLibre, IdOperarioAsignado, OficinaId)
+            // Obtenemos los operarios y clientes desde los repositorios
+            List<Operario> operarios = _operarioRepository.GetAllOperarios().ToList();
+            List<Cliente> clientesEnEspera = _clienteRepository.ObtenerClientesEnEspera().ToList();
+
+            // Crear los puestos de atención (pueden estar también en un repositorio si quieres separarlo)
             List<PuestoAtencion> puestosAtencion = new List<PuestoAtencion>
-        {
-            new PuestoAtencion(111, 1, true, 1, 1),
-            new PuestoAtencion(222, 2, true, 2, 1),
-            new PuestoAtencion(333, 3, true, 3, 1)
-        };
+            {
+                new PuestoAtencion(111, 1, true, operarios[0].Id, 1),
+                new PuestoAtencion(222, 2, true, operarios[1].Id, 1),
+                new PuestoAtencion(333, 3, true, operarios[2].Id, 1)
+            };
 
-            // Crear los operarios directamente vinculados a sus puestos. Operario -> ( Id, Nombre, PuestoAsignado, EstaDisponible, OficinaId)
-            List<Operario> operarios = new List<Operario>
-        {
-            new Operario(1, "Operario 1", puestosAtencion[0], true, 1),
-            new Operario(2, "Operario 2", puestosAtencion[1], true, 1),
-            new Operario(3, "Operario 3", puestosAtencion[2], true, 1)
-        };
-
-            // Crear los clientes en espera con la fecha actual si no es necesario pasar una específica. Cliente -> (Cedula, FechaRegistro, Estado)
-            List<Cliente> clientesEnEspera = new List<Cliente>
-        {
-            new Cliente("111111", DateTime.Today, EstadoCliente.Esperando),
-            new Cliente("222222", DateTime.Today, EstadoCliente.Esperando),
-            new Cliente("333333", DateTime.Today, EstadoCliente.Esperando)
-        };
-
-            // Crear la oficina con sus operarios, clientes y puestos
             return new Oficina
             {
                 Id = 1,
@@ -89,5 +82,36 @@ namespace BlazorApp.Data
                 PuestosDeAtencion = puestosAtencion
             };
         }
+
+        private void MostrarDatosOficina(Oficina oficina)
+        {
+            if (oficina != null)
+            {
+                Console.WriteLine($"Oficina ID: {oficina.Id}, Nombre: {oficina.Nombre}");
+
+                Console.WriteLine("Puestos de atención:");
+                foreach (var puesto in oficina.PuestosDeAtencion)
+                {
+                    Console.WriteLine($"  Puesto ID: {puesto.Id}, Número: {puesto.Numero}, EstaLibre: {puesto.EstaLibre}, OperarioAsignado: {puesto.IdOperarioAsignado}");
+                }
+
+                Console.WriteLine("Operarios:");
+                foreach (var operario in oficina.Operarios)
+                {
+                    Console.WriteLine($"  Operario ID: {operario.Id}, Nombre: {operario.Nombre}, EstaDisponible: {operario.EstaDisponible}");
+                }
+
+                Console.WriteLine("Clientes en espera:");
+                foreach (var cliente in oficina.ClientesEnEspera)
+                {
+                    Console.WriteLine($"  Cliente Cédula: {cliente.Cedula}, FechaRegistro: {cliente.FechaRegistro.ToShortDateString()}, Estado: {cliente.Estado}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("No se encontró ninguna oficina.");
+            }
+        }
+
     }
 }

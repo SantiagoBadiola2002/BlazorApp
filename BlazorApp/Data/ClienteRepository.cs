@@ -1,20 +1,18 @@
 ﻿using BlazorApp.Models;
-using BlazorApp.Models;
 
 namespace BlazorApp.Data
 {
     public class ClienteRepository : IClienteRepository
     {
-        private readonly List<Cliente> _clientes = new List<Cliente>();
+        private readonly List<Cliente> _clientes;
 
         public ClienteRepository()
         {
-            this._clientes = new List<Cliente>
+            _clientes = new List<Cliente>
             {
-                //new Cliente("11111111", new DateTime(2024, 10, 05), EstadoCliente.Esperando),
-                //new Cliente("22222222", new DateTime(2024, 10, 05), EstadoCliente.Atendido),
-                //new Cliente("33333333", new DateTime(2024, 10, 04), EstadoCliente.NoSePresento),
-                //new Cliente("44444444", new DateTime(2024, 10, 03), EstadoCliente.Esperando)
+                new Cliente("111111", DateTime.Today, EstadoCliente.Esperando),
+                new Cliente("222222", DateTime.Today, EstadoCliente.Esperando),
+                new Cliente("333333", DateTime.Today, EstadoCliente.Esperando)
             };
         }
 

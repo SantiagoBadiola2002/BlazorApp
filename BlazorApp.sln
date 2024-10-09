@@ -5,7 +5,7 @@ VisualStudioVersion = 17.10.35122.118
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorApp", "BlazorApp\BlazorApp.csproj", "{647E7A22-1442-4765-BCC5-5FDEAD119D73}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorApp.AppHost", "BlazorApp.AppHost\BlazorApp.AppHost.csproj", "{0CA17CE6-549B-47D6-B59C-87F51A6EBFD4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorApp.AppHost", "BlazorApp.AppHost\BlazorApp.AppHost.csproj", "{0CA17CE6-549B-47D6-B59C-87F51A6EBFD4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorApp.ServiceDefaults", "BlazorApp.ServiceDefaults\BlazorApp.ServiceDefaults.csproj", "{DD2224F1-3B1D-4F51-9AAA-2A3B6A4E0A96}"
 EndProject

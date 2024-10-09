@@ -3,8 +3,7 @@
     public enum EstadoCliente
     {
         Esperando,
+        Procesando,
         Atendido,
-        NoSePresento,
-        LlamadoSegundaVez
     }
 }

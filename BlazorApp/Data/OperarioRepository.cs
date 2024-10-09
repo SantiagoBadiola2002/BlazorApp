@@ -8,11 +8,12 @@ namespace BlazorApp.Data
 
         public OperarioRepository()
         {
-            // Inicialización de la lista de operarios (ejemplo)
+            // Inicialización de la lista de operarios con datos pre-cargados
             _operarios = new List<Operario>
             {
-                //new Operario { Id = 1, Nombre = "Juan Pérez", EstaDisponible = true, OficinaId = 1 },
-                //new Operario { Id = 2, Nombre = "Ana Gómez", EstaDisponible = true, OficinaId = 1 }
+                new Operario(1, "Operario 1", new PuestoAtencion(111, 1, true, 1, 1), true, 1),
+                new Operario(2, "Operario 2", new PuestoAtencion(222, 2, true, 2, 1), true, 1),
+                new Operario(3, "Operario 3", new PuestoAtencion(333, 3, true, 3, 1), true, 1)
             };
         }
 

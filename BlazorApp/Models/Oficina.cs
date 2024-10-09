@@ -20,12 +20,12 @@
         public void AgregarCliente(Cliente cliente)
         {
             ClientesEnEspera.Add(cliente);
-            // Lógica para notificar a los monitores sobre el nuevo cliente
+            
         }
 
         public void ActualizarMonitores()
         {
-            // Lógica para actualizar la información en los monitores
+            
         }
 
         public void AsignarPuestoAOperario(Operario operario, PuestoAtencion puesto)

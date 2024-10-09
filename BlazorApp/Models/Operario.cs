@@ -5,7 +5,7 @@
         public int Id { get; set; }
         public string Nombre { get; set; }
         public PuestoAtencion PuestoAsignado { get; set; }
-        public bool EstaDisponible { get; set; } 
+        public bool EstaDisponible { get; set; } //Esta disponible para antender a un cliente
         public int OficinaId { get; set; } 
 
         public Operario() { }
@@ -21,15 +21,17 @@
 
         public void AtenderCliente(Cliente cliente)
         {
-            cliente.ActualizarEstado(EstadoCliente.Atendido);
             EstaDisponible = false;
-            PuestoAsignado.Ocupar(); // Asegurar que el puesto también esté marcado como ocupado
+            cliente.ActualizarEstado(EstadoCliente.Procesando);
+            //Pasa el tiempo
+            cliente.ActualizarEstado(EstadoCliente.Atendido);
+            EstaDisponible = true;
         }
 
         public void LiberarPuesto()
         {
             EstaDisponible = true;
-            PuestoAsignado.Liberar(); // Asegurar que el puesto se libera
+            PuestoAsignado.Liberar(); 
         }
     }
 

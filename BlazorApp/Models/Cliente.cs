@@ -23,7 +23,6 @@
         public void ActualizarEstado(EstadoCliente nuevoEstado)
         {
             Estado = nuevoEstado;
-            // Lógica adicional para actualizar el estado en el sistema
         }
     }
 }

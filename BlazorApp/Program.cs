@@ -1,4 +1,5 @@
 using BlazorApp.Components;
+using BlazorApp.Data;
 using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +12,10 @@ builder.Services.AddRadzenComponents();
 
 // agregado para utilizar SignalR
 builder.Services.AddSignalR();
+
+builder.Services.AddSingleton<IOficinaRepository, OficinaRepository>();
+builder.Services.AddSingleton<IClienteRepository, ClienteRepository>();
+builder.Services.AddSingleton<IOperarioRepository, OperarioRepository>();
 
 var app = builder.Build();
 
