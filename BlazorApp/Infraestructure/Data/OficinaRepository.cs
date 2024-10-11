@@ -1,6 +1,6 @@
 ﻿using BlazorApp.Models;
 
-namespace BlazorApp.Data
+namespace BlazorApp.Infraestructure.Data
 {
     public class OficinaRepository : IOficinaRepository
     {

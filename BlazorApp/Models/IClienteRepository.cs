@@ -1,6 +1,4 @@
-﻿using BlazorApp.Models;
-
-namespace BlazorApp.Data
+﻿namespace BlazorApp.Models
 {
     public interface IClienteRepository
     {

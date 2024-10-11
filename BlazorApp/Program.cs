@@ -1,5 +1,6 @@
 using BlazorApp.Components;
-using BlazorApp.Data;
+using BlazorApp.Infraestructure.Data;
+using BlazorApp.Models;
 using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);

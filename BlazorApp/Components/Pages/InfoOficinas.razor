@@ -1,55 +1,46 @@
 ﻿@page "/infoOficinas"
-@using BlazorApp.Data
 @using BlazorApp.Models
+@using BlazorApp.Infraestructure.Data
+@inject IClienteRepository ClienteRepository
 
-@inject IOficinaRepository OficinaRepository
+<h3>Lista de Clientes</h3>
 
-<h3>Lista de Oficinas</h3>
-
-@if (oficinas != null && oficinas.Any())
+@if (clientes == null)
 {
-    <ul>
-        @foreach (var oficina in oficinas)
-        {
-            <li>
-                <h4>Oficina ID: @oficina.Id, Nombre: @oficina.Nombre</h4>
-                <p><strong>Puestos de atención:</strong></p>
-                <ul>
-                    @foreach (var puesto in oficina.PuestosDeAtencion)
-                    {
-                        <li>Puesto ID: @puesto.Id, Número: @puesto.Numero, EstaLibre: @puesto.EstaLibre, Operario Asignado: @puesto.IdOperarioAsignado</li>
-                    }
-                </ul>
-
-                <p><strong>Operarios:</strong></p>
-                <ul>
-                    @foreach (var operario in oficina.Operarios)
-                    {
-                        <li>Operario ID: @operario.Id, Nombre: @operario.Nombre, Disponible: @operario.EstaDisponible</li>
-                    }
-                </ul>
-
-                <p><strong>Clientes en espera:</strong></p>
-                <ul>
-                    @foreach (var cliente in oficina.ClientesEnEspera)
-                    {
-                        <li>Cliente Cédula: @cliente.Cedula, FechaRegistro: @cliente.FechaRegistro, Estado: @cliente.Estado</li>
-                    }
-                </ul>
-            </li>
-        }
-    </ul>
+    <p>Cargando...</p>
+}
+else if (clientes.Count == 0)
+{
+    <p>No hay clientes disponibles.</p>
 }
 else
 {
-    <p>No hay oficinas disponibles.</p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Cédula</th>
+                <th>Fecha de Registro</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var cliente in clientes)
+            {
+                <tr>
+                    <td>@cliente.Cedula</td>
+                    <td>@cliente.FechaRegistro.ToShortDateString()</td>
+                    <td>@cliente.Estado.ToString()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }
 
 @code {
-    private List<Oficina> oficinas;
+    private IList<Cliente> clientes;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        oficinas = OficinaRepository.ObtenerTodasLasOficinas();
+        clientes = await Task.Run(() => ClienteRepository.ObtenerClientesEnEspera());
     }
 }
