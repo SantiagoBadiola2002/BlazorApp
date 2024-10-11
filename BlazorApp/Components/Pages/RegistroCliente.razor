@@ -1,4 +1,8 @@
 ﻿@page "/registroCliente"
+@using BlazorApp.Models
+@using BlazorApp.Infraestructure.Data
+@inject IClienteRepository ClienteRepository
+
 
 <style>
     body {
@@ -20,6 +24,7 @@
         background-color: white;
         border-radius: 15px;
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        width: 300px; /* Ancho del formulario */
     }
 
     h1 {
@@ -35,15 +40,89 @@
         font-size: 1.2rem;
         margin-top: 1rem;
     }
+
+    .form-group {
+        margin: 1rem 0;
+    }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input, .form-group select {
+            padding: 0.5rem;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .form-group button {
+            padding: 0.5rem 1rem;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+            .form-group button:hover {
+                background-color: #2980b9;
+            }
 </style>
 
 <div class="main-container">
     <div class="container">
         <h1>Registro</h1>
         <p class="subtitle">Cliente</p>
+
+        <EditForm Model="@cliente" OnValidSubmit="@GuardarCliente" FormName="clienteForm">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group">
+                <label for="cedula">Cédula:</label>
+                <InputText id="cedula" @bind-Value="cliente.Cedula" />
+                <ValidationMessage For="@(() => cliente.Cedula)" />
+            </div>
+
+            <div class="form-group">
+                <label for="estado">Estado:</label>
+                <select id="estado" @bind="@cliente.Estado">
+                    <option value="EstadoCliente.Esperando">Esperando</option>
+                    <option value="EstadoCliente.Aprobado">Aprobado</option>
+                    <option value="EstadoCliente.Rechazado">Rechazado</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <button type="submit">Agregar Cliente</button>
+            </div>
+        </EditForm>
+
+        @if (mensaje != null)
+        {
+            <div>@mensaje</div>
+        }
     </div>
 </div>
 
 @code {
-    // Aquí puedes agregar lógica adicional si es necesario
+    private Cliente cliente = new Cliente(string.Empty);
+    private string mensaje;
+
+    private void GuardarCliente()
+    {
+        try
+        {
+            // Aquí llamas al repositorio para guardar el cliente
+            ClienteRepository.AgregarCliente(cliente);
+            mensaje = "Cliente agregado exitosamente.";
+            cliente = new Cliente(string.Empty); // Reiniciar el formulario
+        }
+        catch (Exception ex)
+        {
+            mensaje = $"Error al agregar cliente: {ex.Message}";
+        }
+    }
 }

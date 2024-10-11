@@ -2,9 +2,9 @@
 {
     public class Cliente
     {
-        public string Cedula { get; private set; }
-        public DateTime FechaRegistro { get; private set; }
-        public EstadoCliente Estado { get; private set; }
+        public string Cedula { get;  set; }
+        public DateTime FechaRegistro { get;  set; }
+        public EstadoCliente Estado { get;  set; }
 
         public Cliente(string cedula)
         {
