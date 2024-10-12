@@ -1,10 +1,19 @@
-﻿namespace BlazorApp.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace BlazorApp.Models
 {
     public class Cliente
     {
-        public string Cedula { get;  set; }
-        public DateTime FechaRegistro { get;  set; }
-        public EstadoCliente Estado { get;  set; }
+        [Key]
+        [Required]
+        [StringLength(12)] 
+        public string Cedula { get; set; }
+
+        [Required]
+        public DateTime FechaRegistro { get; set; }
+
+        [Required]
+        public EstadoCliente Estado { get; set; }
 
         public Cliente(string cedula)
         {

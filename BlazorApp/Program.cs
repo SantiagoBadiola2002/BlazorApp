@@ -1,6 +1,8 @@
 using BlazorApp.Components;
 using BlazorApp.Infraestructure.Data;
 using BlazorApp.Models;
+using BlazorApp.Models.BaseDeDatos;
+using Microsoft.EntityFrameworkCore;
 using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,7 +20,18 @@ builder.Services.AddSingleton<IOficinaRepository, OficinaRepository>();
 builder.Services.AddSingleton<IClienteRepository, ClienteRepository>();
 builder.Services.AddSingleton<IOperarioRepository, OperarioRepository>();
 
+builder.Services.AddDbContext<ContextoBD>(options =>
+{
+    options.UseMySQL(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dataContext = scope.ServiceProvider.GetRequiredService<ContextoBD>();
+    dataContext.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
