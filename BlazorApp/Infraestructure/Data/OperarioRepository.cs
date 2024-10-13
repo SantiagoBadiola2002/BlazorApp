@@ -1,4 +1,5 @@
 ﻿using BlazorApp.Models;
+using BlazorApp.Models.Interfaces;
 
 namespace BlazorApp.Infraestructure.Data
 {

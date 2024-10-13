@@ -1,128 +1,63 @@
 ﻿@page "/registroCliente"
 @using BlazorApp.Models
+@using BlazorApp.Models.Interfaces
 @using BlazorApp.Infraestructure.Data
+@inject IOficinaRepository OficinaRepository
 @inject IClienteRepository ClienteRepository
 
+@if (oficinas == null || oficinas.Count == 0)
+{
+    <p><em>Cargando oficinas...</em></p>
+}
+else
+{
+    <RadzenDropDown @bind-Value="selectedOficinaId"
+                    Data="@oficinas"
+                    TextProperty="Nombre"
+                    ValueProperty="Id" />
+    <RadzenTextBox @bind-Value="cedula" Placeholder="Ingrese su cédula" Style="width: 20%;" />
+    <RadzenButton Text="Registrar" Click="RegistrarCliente" Disabled="@(string.IsNullOrEmpty(cedula) || selectedOficinaId == 0)" />
+}
 
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0; /* Asegúrate de que no haya margen */
-    }
-
-    .main-container {
-        display: flex; /* Usamos flex para centrar */
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        background-color: #e6f2ff; /* Color de fondo */
-    }
-
-    .container {
-        text-align: center;
-        padding: 3rem;
-        background-color: white;
-        border-radius: 15px;
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-        width: 300px; /* Ancho del formulario */
-    }
-
-    h1 {
-        color: #2c3e50;
-        font-size: 3rem;
-        margin: 0;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-    }
-
-    .subtitle {
-        color: #7f8c8d;
-        font-size: 1.2rem;
-        margin-top: 1rem;
-    }
-
-    .form-group {
-        margin: 1rem 0;
-    }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-
-        .form-group input, .form-group select {
-            padding: 0.5rem;
-            width: 100%;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        .form-group button {
-            padding: 0.5rem 1rem;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-            .form-group button:hover {
-                background-color: #2980b9;
-            }
-</style>
-
-<div class="main-container">
-    <div class="container">
-        <h1>Registro</h1>
-        <p class="subtitle">Cliente</p>
-
-        <EditForm Model="@cliente" OnValidSubmit="@GuardarCliente" FormName="clienteForm">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-
-            <div class="form-group">
-                <label for="cedula">Cédula:</label>
-                <InputText id="cedula" @bind-Value="cliente.Cedula" />
-                <ValidationMessage For="@(() => cliente.Cedula)" />
-            </div>
-
-            <div class="form-group">
-                <label for="estado">Estado:</label>
-                <select id="estado" @bind="@cliente.Estado">
-                    <option value="EstadoCliente.Esperando">Esperando</option>
-                    <option value="EstadoCliente.Aprobado">Aprobado</option>
-                    <option value="EstadoCliente.Rechazado">Rechazado</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <button type="submit">Agregar Cliente</button>
-            </div>
-        </EditForm>
-
-        @if (mensaje != null)
-        {
-            <div>@mensaje</div>
-        }
-    </div>
-</div>
+<p>@resultado</p>
 
 @code {
-    private Cliente cliente = new Cliente(string.Empty);
-    private string mensaje;
+    private List<Oficina> oficinas;
+    private int selectedOficinaId;
+    private string cedula;
+    private string resultado;
 
-    private void GuardarCliente()
+    protected override async Task OnInitializedAsync()
     {
-        try
+        oficinas =  OficinaRepository.ObtenerTodasLasOficinas();
+
+        if (oficinas != null && oficinas.Count > 0)
         {
-            // Aquí llamas al repositorio para guardar el cliente
-            ClienteRepository.AgregarCliente(cliente);
-            mensaje = "Cliente agregado exitosamente.";
-            cliente = new Cliente(string.Empty); // Reiniciar el formulario
+            Console.WriteLine($"Se han cargado {oficinas.Count} oficinas.");
+            foreach (var oficina in oficinas)
+            {
+                Console.WriteLine($"Oficina: {oficina.Nombre}, ID: {oficina.Id}");
+            }
         }
-        catch (Exception ex)
+        else
         {
-            mensaje = $"Error al agregar cliente: {ex.Message}";
+            Console.WriteLine("No se encontraron oficinas.");
+        }
+    }
+
+    private void RegistrarCliente()
+    {
+        var oficina = oficinas.FirstOrDefault(o => o.Id == selectedOficinaId);
+        if (oficina != null)
+        {
+            var nuevoCliente = new Cliente(cedula);
+            ClienteRepository.AgregarCliente(nuevoCliente);
+            oficina.ClientesEnEspera.Add(nuevoCliente);
+            resultado = "Cliente registrado exitosamente en la oficina " + oficina.Nombre;
+        }
+        else
+        {
+            resultado = "Error al registrar cliente. Oficina no encontrada.";
         }
     }
 }

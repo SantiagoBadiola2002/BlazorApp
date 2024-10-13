@@ -1,117 +1,80 @@
 ﻿using BlazorApp.Models;
+using BlazorApp.Models.BaseDeDatos;
+using BlazorApp.Models.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace BlazorApp.Infraestructure.Data
 {
     public class OficinaRepository : IOficinaRepository
     {
-        private readonly List<Oficina> _oficinas;
-        private readonly IOperarioRepository _operarioRepository;
-        private readonly IClienteRepository _clienteRepository;
+        private readonly ContextoBD _contexto;
 
-        public OficinaRepository(IOperarioRepository operarioRepository, IClienteRepository clienteRepository)
+        public OficinaRepository(ContextoBD contexto)
         {
-            _operarioRepository = operarioRepository;
-            _clienteRepository = clienteRepository;
-
-            _oficinas = new List<Oficina>
-            {
-                CrearOficina1()
-            };
-
-            MostrarDatosOficina(_oficinas.FirstOrDefault());
+            _contexto = contexto;
         }
 
+        // Obtiene una oficina por su ID
         public Oficina ObtenerOficinaPorId(int id)
         {
-            return _oficinas.FirstOrDefault(o => o.Id == id);
+#pragma warning disable CS8603 // Posible tipo de valor devuelto de referencia nulo
+            return _contexto.Oficinas
+                            .Include(o => o.Operarios)
+                            .Include(o => o.ClientesEnEspera)
+                            .Include(o => o.PuestosDeAtencion)
+                            .FirstOrDefault(o => o.Id == id);
+#pragma warning restore CS8603 // Posible tipo de valor devuelto de referencia nulo
         }
 
+        // Obtiene todas las oficinas
         public List<Oficina> ObtenerTodasLasOficinas()
         {
-            return _oficinas;
+            Console.WriteLine("#### Devolviendo todas las oficinas ####");
+            return _contexto.Oficinas
+                            .Include(o => o.Operarios)
+                            .Include(o => o.ClientesEnEspera)
+                            .Include(o => o.PuestosDeAtencion)
+                            .ToList();
+
+            
         }
 
+        // Agrega una nueva oficina
         public void AgregarOficina(Oficina oficina)
         {
-            // Generar un nuevo Id único para la nueva oficina
-            oficina.Id = _oficinas.Any() ? _oficinas.Max(o => o.Id) + 1 : 1;
-            _oficinas.Add(oficina);
+            _contexto.Oficinas.Add(oficina);
+            _contexto.SaveChanges();
         }
 
+        // Actualiza una oficina existente
         public void ActualizarOficina(Oficina oficina)
         {
-            var oficinaExistente = ObtenerOficinaPorId(oficina.Id);
+            var oficinaExistente = _contexto.Oficinas
+                                            .Include(o => o.Operarios)
+                                            .Include(o => o.ClientesEnEspera)
+                                            .Include(o => o.PuestosDeAtencion)
+                                            .FirstOrDefault(o => o.Id == oficina.Id);
+
             if (oficinaExistente != null)
             {
                 oficinaExistente.Nombre = oficina.Nombre;
-                oficinaExistente.PuestosDeAtencion = oficina.PuestosDeAtencion;
-                oficinaExistente.ClientesEnEspera = oficina.ClientesEnEspera;
                 oficinaExistente.Operarios = oficina.Operarios;
+                oficinaExistente.ClientesEnEspera = oficina.ClientesEnEspera;
+                oficinaExistente.PuestosDeAtencion = oficina.PuestosDeAtencion;
+
+                _contexto.SaveChanges();
             }
         }
 
+        // Elimina una oficina por su ID
         public void EliminarOficina(int id)
         {
-            var oficina = ObtenerOficinaPorId(id);
+            var oficina = _contexto.Oficinas.FirstOrDefault(o => o.Id == id);
             if (oficina != null)
             {
-                _oficinas.Remove(oficina);
+                _contexto.Oficinas.Remove(oficina);
+                _contexto.SaveChanges();
             }
         }
-
-        private Oficina CrearOficina1()
-        {
-            // Obtenemos los operarios y clientes desde los repositorios
-            List<Operario> operarios = _operarioRepository.GetAllOperarios().ToList();
-            List<Cliente> clientesEnEspera = _clienteRepository.ObtenerClientesEnEspera().ToList();
-
-            // Crear los puestos de atención (pueden estar también en un repositorio si quieres separarlo)
-            List<PuestoAtencion> puestosAtencion = new List<PuestoAtencion>
-            {
-                new PuestoAtencion(111, 1, true, operarios[0].Id, 1),
-                new PuestoAtencion(222, 2, true, operarios[1].Id, 1),
-                new PuestoAtencion(333, 3, true, operarios[2].Id, 1)
-            };
-
-            return new Oficina
-            {
-                Id = 1,
-                Nombre = "Oficina 1",
-                Operarios = operarios,
-                ClientesEnEspera = clientesEnEspera,
-                PuestosDeAtencion = puestosAtencion
-            };
-        }
-
-        private void MostrarDatosOficina(Oficina oficina)
-        {
-            if (oficina != null)
-            {
-                Console.WriteLine($"Oficina ID: {oficina.Id}, Nombre: {oficina.Nombre}");
-
-                Console.WriteLine("Puestos de atención:");
-                foreach (var puesto in oficina.PuestosDeAtencion)
-                {
-                    Console.WriteLine($"  Puesto ID: {puesto.Id}, Número: {puesto.Numero}, EstaLibre: {puesto.EstaLibre}, OperarioAsignado: {puesto.IdOperarioAsignado}");
-                }
-
-                Console.WriteLine("Operarios:");
-                foreach (var operario in oficina.Operarios)
-                {
-                    Console.WriteLine($"  Operario ID: {operario.Id}, Nombre: {operario.Nombre}, EstaDisponible: {operario.EstaDisponible}");
-                }
-
-                Console.WriteLine("Clientes en espera:");
-                foreach (var cliente in oficina.ClientesEnEspera)
-                {
-                    Console.WriteLine($"  Cliente Cédula: {cliente.Cedula}, FechaRegistro: {cliente.FechaRegistro.ToShortDateString()}, Estado: {cliente.Estado}");
-                }
-            }
-            else
-            {
-                Console.WriteLine("No se encontró ninguna oficina.");
-            }
-        }
-
     }
 }

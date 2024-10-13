@@ -2,6 +2,7 @@ using BlazorApp.Components;
 using BlazorApp.Infraestructure.Data;
 using BlazorApp.Models;
 using BlazorApp.Models.BaseDeDatos;
+using BlazorApp.Models.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Radzen;
 
@@ -16,9 +17,10 @@ builder.Services.AddRadzenComponents();
 // agregado para utilizar SignalR
 builder.Services.AddSignalR();
 
-builder.Services.AddSingleton<IOficinaRepository, OficinaRepository>();
-builder.Services.AddSingleton<IClienteRepository, ClienteRepository>();
-builder.Services.AddSingleton<IOperarioRepository, OperarioRepository>();
+builder.Services.AddScoped<IOficinaRepository, OficinaRepository>();
+builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
+builder.Services.AddScoped<IOperarioRepository, OperarioRepository>();
+
 
 builder.Services.AddDbContext<ContextoBD>(options =>
 {

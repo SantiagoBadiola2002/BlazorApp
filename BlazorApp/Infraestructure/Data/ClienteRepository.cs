@@ -1,124 +1,44 @@
 ﻿using BlazorApp.Models;
-using MySql.Data.MySqlClient;
+using BlazorApp.Models.Interfaces;
+using BlazorApp.Models.BaseDeDatos;
 
 namespace BlazorApp.Infraestructure.Data
 {
     public class ClienteRepository : IClienteRepository
     {
-        private readonly ConexionMySql _conexion;
+        private readonly ContextoBD _context;
 
-        public ClienteRepository()
+        public ClienteRepository(ContextoBD context)
         {
-            _conexion = new ConexionMySql();
+            _context = context;
         }
 
         public void AgregarCliente(Cliente cliente)
         {
-            string query = $"INSERT INTO Clientes (Cedula, FechaRegistro, Estado) VALUES ('{cliente.Cedula}', '{cliente.FechaRegistro:yyyy-MM-dd}', '{cliente.Estado}')";
-            try
-            {
-                _conexion.AbrirConexion();
-                MySqlCommand comando = new MySqlCommand(query, _conexion.Conexion);
-                comando.ExecuteNonQuery();
-                Console.WriteLine("Cliente agregado exitosamente.");
-            }
-            catch (MySqlException ex)
-            {
-                Console.WriteLine("Error al agregar el cliente: " + ex.Message);
-            }
-            finally
-            {
-                _conexion.CerrarConexion();
-            }
+            _context.Clientes.Add(cliente);
+            _context.SaveChanges(); // Guarda los cambios en la base de datos
         }
 
         public Cliente ObtenerClientePorCedula(string cedula)
         {
-            string query = $"SELECT Cedula, FechaRegistro, Estado FROM Clientes WHERE Cedula = '{cedula}'";
-            Cliente cliente = null;
-
-            try
-            {
-                _conexion.AbrirConexion();
-                MySqlCommand comando = new MySqlCommand(query, _conexion.Conexion);
-                MySqlDataReader lector = comando.ExecuteReader();
-
-                if (lector.Read())
-                {
-                    cliente = new Cliente(
-                        lector["Cedula"].ToString(),
-                        Convert.ToDateTime(lector["FechaRegistro"]),
-                        (EstadoCliente)Enum.Parse(typeof(EstadoCliente), lector["Estado"].ToString())
-                    );
-                }
-
-                lector.Close();
-            }
-            catch (MySqlException ex)
-            {
-                Console.WriteLine("Error al obtener el cliente: " + ex.Message);
-            }
-            finally
-            {
-                _conexion.CerrarConexion();
-            }
-
-            return cliente;
+            return _context.Clientes.FirstOrDefault(c => c.Cedula == cedula);
         }
 
         public IList<Cliente> ObtenerClientesEnEspera()
         {
-            string query = "SELECT Cedula, FechaRegistro, Estado FROM Clientes WHERE Estado = 'Esperando'";
-            List<Cliente> clientes = new List<Cliente>();
-
-            try
-            {
-                _conexion.AbrirConexion();
-                MySqlCommand comando = new MySqlCommand(query, _conexion.Conexion);
-                MySqlDataReader lector = comando.ExecuteReader();
-
-                while (lector.Read())
-                {
-                    var cliente = new Cliente(
-                        lector["Cedula"].ToString(),
-                        Convert.ToDateTime(lector["FechaRegistro"]),
-                        (EstadoCliente)Enum.Parse(typeof(EstadoCliente), lector["Estado"].ToString())
-                    );
-                    clientes.Add(cliente);
-                }
-
-                lector.Close();
-            }
-            catch (MySqlException ex)
-            {
-                Console.WriteLine("Error al obtener los clientes: " + ex.Message);
-            }
-            finally
-            {
-                _conexion.CerrarConexion();
-            }
-
-            return clientes;
+            return _context.Clientes
+                .Where(c => c.Estado == EstadoCliente.Esperando)
+                .ToList();
         }
 
         public void ActualizarEstadoCliente(string cedula, EstadoCliente nuevoEstado)
         {
-            string query = $"UPDATE Clientes SET Estado = '{nuevoEstado}' WHERE Cedula = '{cedula}'";
-
-            try
+            var cliente = ObtenerClientePorCedula(cedula);
+            if (cliente != null)
             {
-                _conexion.AbrirConexion();
-                MySqlCommand comando = new MySqlCommand(query, _conexion.Conexion);
-                comando.ExecuteNonQuery();
-                Console.WriteLine("Estado del cliente actualizado exitosamente.");
-            }
-            catch (MySqlException ex)
-            {
-                Console.WriteLine("Error al actualizar el estado del cliente: " + ex.Message);
-            }
-            finally
-            {
-                _conexion.CerrarConexion();
+                cliente.ActualizarEstado(nuevoEstado);
+                _context.Clientes.Update(cliente); // Marca el cliente como modificado
+                _context.SaveChanges(); // Guarda los cambios en la base de datos
             }
         }
     }

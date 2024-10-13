@@ -13,7 +13,9 @@ namespace BlazorApp.Models
         public DateTime FechaRegistro { get; set; }
 
         [Required]
-        public EstadoCliente Estado { get; set; }
+        [EnumDataType(typeof(EstadoCliente), ErrorMessage = "Estado inválido.")]
+        [Display(Name = "Estado del Cliente")]
+        public EstadoCliente Estado { get; set; } //0:Esperando, 1:Procesando, 2:Atendido
 
         public Cliente(string cedula)
         {

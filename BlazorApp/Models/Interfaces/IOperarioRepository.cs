@@ -1,4 +1,4 @@
-﻿namespace BlazorApp.Models
+﻿namespace BlazorApp.Models.Interfaces
 {
     public interface IOperarioRepository
     {

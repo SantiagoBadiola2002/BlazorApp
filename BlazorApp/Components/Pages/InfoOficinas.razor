@@ -1,46 +1,55 @@
 ﻿@page "/infoOficinas"
 @using BlazorApp.Models
-@using BlazorApp.Infraestructure.Data
-@inject IClienteRepository ClienteRepository
+@using BlazorApp.Models.Interfaces
+@inject IOficinaRepository OficinaRepository
 
-<h3>Lista de Clientes</h3>
+<h3>Lista de Oficinas</h3>
 
-@if (clientes == null)
-{
-    <p>Cargando...</p>
-}
-else if (clientes.Count == 0)
-{
-    <p>No hay clientes disponibles.</p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Cédula</th>
-                <th>Fecha de Registro</th>
-                <th>Estado</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var cliente in clientes)
-            {
-                <tr>
-                    <td>@cliente.Cedula</td>
-                    <td>@cliente.FechaRegistro.ToShortDateString()</td>
-                    <td>@cliente.Estado.ToString()</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+<RadzenDataGrid AllowFiltering="true" AllowSorting="true" PageSize="5" AllowPaging="true" Data="@oficinas" ColumnWidth="300px">
+    <Columns>
+        <RadzenDataGridColumn Property="@nameof(Oficina.Id)" Title="Oficina ID" Width="80px" TextAlign="TextAlign.Center" />
+        <RadzenDataGridColumn Property="@nameof(Oficina.Nombre)" Title="Nombre" Width="95px" />
+
+        <RadzenDataGridColumn Title="Puestos de Atención" Width="195px">
+            <Template Context="data">
+                <ul>
+                    @foreach (var puesto in data.PuestosDeAtencion)
+                    {
+                        <li>Puesto ID: @puesto.Id, Número: @puesto.Numero, Esta Libre: @puesto.EstaLibre</li>
+                    }
+                </ul>
+            </Template>
+        </RadzenDataGridColumn>
+
+        <RadzenDataGridColumn Title="Operarios" Width="240px">
+            <Template Context="data">
+                <ul>
+                    @foreach (var operario in data.Operarios)
+                    {
+                        <li>Operario ID: @operario.Id, Nombre: @operario.Nombre, Disponible: @operario.EstaDisponible</li>
+                    }
+                </ul>
+            </Template>
+        </RadzenDataGridColumn>
+
+        <RadzenDataGridColumn Title="Clientes" Width="300px">
+            <Template Context="data">
+                <ul>
+                    @foreach (var cliente in data.ClientesEnEspera)
+                    {
+                        <li>Cliente Cédula: @cliente.Cedula, Fecha Registro: @cliente.FechaRegistro, Estado: @cliente.Estado</li>
+                    }
+                </ul>
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
 
 @code {
-    private IList<Cliente> clientes;
+    private List<Oficina> oficinas;
 
-    protected override async Task OnInitializedAsync()
+    protected override void  OnInitialized()
     {
-        clientes = await Task.Run(() => ClienteRepository.ObtenerClientesEnEspera());
+        oficinas =  OficinaRepository.ObtenerTodasLasOficinas();
     }
 }
