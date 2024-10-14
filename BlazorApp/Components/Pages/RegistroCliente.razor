@@ -7,6 +7,7 @@
 
 @inject ContextoBD contextBd
 @inject IClienteRepository ClienteRepository
+@inject IOficinaRepository OficinaRepository
 
 <h3>Registro de Cliente</h3>
 
@@ -27,52 +28,111 @@ else
                             Placeholder="Seleccione una oficina" />
             <RadzenTextBox @bind-Value="cedula" Placeholder="Ingrese su cédula" Style="width: 20%;" />
             <RadzenButton Text="Registrar" Click="@RegistrarCliente" Disabled="@(string.IsNullOrEmpty(cedula) || selectedOficinaId == 0)" />
-
         </RadzenStack>
     </div>
 }
 
-<p>@resultado</p>
+<!-- Alerta de registro exitoso o error -->
+@if (alertVisible)
+{
+    <RadzenAlert AlertStyle="@(isError ? AlertStyle.Danger : AlertStyle.Success)"
+                 Variant="Variant.Flat"
+                 Shade="Shade.Lighter"
+                 Title="@(isError ? "Error" : "Éxito")"
+                 Visible="true"
+                 AllowClose="false">
+        @alertMessage
+    </RadzenAlert>
+}
 
 @code {
     private List<Oficina> oficinas;
     private int selectedOficinaId;
     private string cedula;
-    private string resultado;
+    private string alertMessage; // Para el mensaje de alerta
+    private bool isError; // Indica si es un mensaje de error o éxito
+    private bool alertVisible; // Controla la visibilidad de la alerta
 
     protected override async Task OnInitializedAsync()
     {
-        // Usar contextBd para obtener las oficinas directamente de la base de datos
-        oficinas = await contextBd.Oficinas.ToListAsync();
-        if (oficinas != null && oficinas.Count > 0)
+        try
         {
-            Console.WriteLine($"Se han cargado {oficinas.Count} oficinas.");
-            foreach (var oficina in oficinas)
+            // Usar contextBd para obtener las oficinas directamente de la base de datos
+            oficinas = await contextBd.Oficinas.ToListAsync();
+
+            if (oficinas != null && oficinas.Count > 0)
             {
-                Console.WriteLine($"Oficina: {oficina.Nombre}, ID: {oficina.Id}");
+                Console.WriteLine($"Se han cargado {oficinas.Count} oficinas.");
+                foreach (var oficina in oficinas)
+                {
+                    Console.WriteLine($"Oficina: {oficina.Nombre}, ID: {oficina.Id}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("No se encontraron oficinas.");
+            }
+
+            StateHasChanged(); // Forzamos el renderizado
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar las oficinas: {ex.Message}");
+            alertMessage = "Error al cargar las oficinas: " + ex.Message;
+            isError = true;
+            await MostrarAlertaTemporal();
+        }
+    }
+
+    private async void RegistrarCliente()
+    {
+        Console.WriteLine("OficinaIdSeleccionada: " + selectedOficinaId);
+        var oficina = oficinas.FirstOrDefault(o => o.Id == selectedOficinaId);
+
+        if (oficina != null)
+        {
+            try
+            {
+                var nuevoCliente = new Cliente(cedula);
+                ClienteRepository.AgregarCliente(nuevoCliente); // Verificamos si el cliente ya existe
+                oficina.AgregarCliente(nuevoCliente);
+                OficinaRepository.ActualizarOficina(oficina);
+
+                // Mostrar mensaje de éxito
+                alertMessage = $"Cliente registrado exitosamente en la oficina {oficina.Nombre}.";
+                isError = false;
+
+                // Limpiar el formulario
+                cedula = string.Empty;
+                selectedOficinaId = 0;
+
+                // Mostrar la alerta y ocultarla después de 3 segundos
+                await MostrarAlertaTemporal();
+            }
+            catch (Exception ex)
+            {
+                // Mostrar mensaje de error en caso de excepción
+                alertMessage = "Error al registrar el cliente: " + ex.Message;
+                isError = true;
+                await MostrarAlertaTemporal();
             }
         }
         else
         {
-            Console.WriteLine("No se encontraron oficinas.");
+            // Mostrar mensaje de error si no se encuentra la oficina
+            alertMessage = "Error al registrar cliente. Oficina no encontrada.";
+            isError = true;
+            await MostrarAlertaTemporal();
         }
-
-        StateHasChanged(); // Forzamos el renderizado
     }
 
-    private void RegistrarCliente()
+
+    private async Task MostrarAlertaTemporal()
     {
-        var oficina = oficinas.FirstOrDefault(o => o.Id == selectedOficinaId);
-        if (oficina != null)
-        {
-            var nuevoCliente = new Cliente(cedula);
-            ClienteRepository.AgregarCliente(nuevoCliente);
-            oficina.ClientesEnEspera.Add(nuevoCliente);
-            resultado = "Cliente registrado exitosamente en la oficina " + oficina.Nombre;
-        }
-        else
-        {
-            resultado = "Error al registrar cliente. Oficina no encontrada.";
-        }
+        alertVisible = true;  // Mostrar la alerta
+        StateHasChanged();  // Forzar renderizado
+        await Task.Delay(3000);  // Esperar 3 segundos
+        alertVisible = false;  // Ocultar la alerta
+        StateHasChanged();  // Forzar renderizado
     }
 }

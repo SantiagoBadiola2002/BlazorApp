@@ -31,7 +31,7 @@
 
                 <p><strong>Clientes en espera:</strong></p>
                 <ul>
-                    @foreach (var cliente in oficina.ClientesEnEspera)
+                    @foreach (var cliente in oficina.Clientes)
                     {
                         <li>Cliente Cédula: @cliente.Cedula, FechaRegistro: @cliente.FechaRegistro, Estado: @cliente.Estado</li>
                     }

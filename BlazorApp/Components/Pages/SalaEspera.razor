@@ -1,49 +1,95 @@
 ﻿@page "/salaEspera"
+@rendermode InteractiveServer
+@using BlazorApp.Models
+@using BlazorApp.Models.Interfaces
+@inject IOficinaRepository OficinaRepository
 
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0; /* Asegúrate de que no haya margen */
+<!-- RadzenStack para agrupar los elementos verticalmente -->
+<RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" Gap="0.5rem" class="rz-p-2">
+    <!-- Selección de oficina -->
+    <RadzenDropDown @bind-Value="@selectedOficinaId"
+                    Data="@oficinas"
+                    TextProperty="Nombre"
+                    ValueProperty="Id"
+                    Style="width: 100%; max-width: 400px;"
+                    Name="DropDownBindValue"
+                    Placeholder="Seleccione una oficina"
+                    Change="@((args) => CargarClientesEnEspera())" />
+
+
+
+    <!-- Mostrar mensaje si no se selecciona una oficina -->
+    @if (selectedOficinaId == 0)
+    {
+        <p>Seleccione una oficina para ver los clientes en espera.</p>
     }
-
-    .main-container {
-        display: flex; /* Usamos flex para centrar */
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        background-color: #e6f2ff; /* Color de fondo */
+    else
+    {
+        <!-- Mensaje si no hay clientes en espera -->
+        @if (clientesEnEspera == null || clientesEnEspera.Count == 0)
+        {
+            <p>No hay clientes en espera para la oficina seleccionada.</p>
+        }
+        else
+        {
+            <!-- Lista de clientes -->
+            <RadzenDataList AllowVirtualization="@allowVirtualization"
+                            Style="@(allowVirtualization ? "height:400px;overflow:auto;" : "")"
+                            WrapItems="@(!allowVirtualization)" AllowPaging="@(!allowVirtualization)"
+                            Data="@clientesEnEspera" TItem="Cliente" PageSize="5" ShowPagingSummary="true">
+                <Template Context="cliente">
+                    <RadzenCard Variant="Variant.Outlined" class="rz-p-0" Style="width: 100%; overflow: hidden;">
+                        <RadzenRow Gap="0">
+                            <RadzenColumn Size="12" SizeLG="4" class="rz-p-4 product-title">
+                                <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" class="rz-color-on-secondary-lighter">Cliente Cédula: @(cliente.Cedula)</RadzenText>
+                            </RadzenColumn>
+                            <RadzenColumn Size="12" SizeLG="4" class="rz-p-4">
+                                <RadzenRow Gap="0">
+                                    <RadzenColumn Size="12">
+                                        <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" class="rz-mb-0">Fecha Registro</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body2">@(cliente.FechaRegistro.ToString("yyyy-MM-dd"))</RadzenText>
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="12">
+                                        <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" class="rz-mb-0">Estado</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body2">@cliente.Estado.ToString()</RadzenText>
+                                    </RadzenColumn>
+                                </RadzenRow>
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenCard>
+                </Template>
+            </RadzenDataList>
+        }
     }
-
-    .container {
-        text-align: center;
-        padding: 3rem;
-        background-color: white;
-        border-radius: 15px;
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    h1 {
-        color: #2c3e50;
-        font-size: 3rem;
-        margin: 0;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-    }
-
-    .subtitle {
-        color: #7f8c8d;
-        font-size: 1.2rem;
-        margin-top: 1rem;
-    }
-</style>
-
-<div class="main-container">
-    <div class="container">
-        <h1>Sala de Espera</h1>
-        <p class="subtitle">Clientes</p>
-    </div>
-</div>
+</RadzenStack>
 
 @code {
-    // Aquí puedes agregar lógica adicional si es necesario
+    private List<Oficina> oficinas = new List<Oficina>();
+    private List<Cliente> clientesEnEspera = new List<Cliente>();
+    private int selectedOficinaId = 0; // Inicializa a 0 para representar "no seleccionado"
+    private bool allowVirtualization = false; // Control para virtualización
+
+    protected override async Task OnInitializedAsync()
+    {
+        oficinas = await OficinaRepository.ObtenerTodasLasOficinasAsync();
+    }
+
+    private async Task CargarClientesEnEspera()
+    {
+        if (selectedOficinaId > 0)
+        {
+            clientesEnEspera = await OficinaRepository.ObtenerClientesEnEsperaPorOficinaAsync(selectedOficinaId);
+        }
+        else
+        {
+            clientesEnEspera.Clear();
+        }
+    }
 }
+
+<style>
+    .product-title {
+        min-height: 72px;
+        background-color: var(--rz-secondary-lighter);
+    }
+</style>

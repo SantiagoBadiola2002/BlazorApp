@@ -15,30 +15,60 @@ namespace BlazorApp.Infraestructure.Data
 
         public void AgregarCliente(Cliente cliente)
         {
-            _context.Clientes.Add(cliente);
-            _context.SaveChanges(); // Guarda los cambios en la base de datos
+            try
+            {
+                _context.Clientes.Add(cliente);
+                _context.SaveChanges(); // Guarda los cambios en la base de datos
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al agregar el cliente: {ex.Message}");
+            }
         }
 
         public Cliente ObtenerClientePorCedula(string cedula)
         {
-            return _context.Clientes.FirstOrDefault(c => c.Cedula == cedula);
+            try
+            {
+                return _context.Clientes.FirstOrDefault(c => c.Cedula == cedula);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al obtener el cliente por cédula: {ex.Message}");
+                return null;
+            }
         }
 
         public IList<Cliente> ObtenerClientesEnEspera()
         {
-            return _context.Clientes
-                .Where(c => c.Estado == EstadoCliente.Esperando)
-                .ToList();
+            try
+            {
+                return _context.Clientes
+                    .Where(c => c.Estado == EstadoCliente.Esperando)
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al obtener clientes en espera: {ex.Message}");
+                return new List<Cliente>();
+            }
         }
 
         public void ActualizarEstadoCliente(string cedula, EstadoCliente nuevoEstado)
         {
-            var cliente = ObtenerClientePorCedula(cedula);
-            if (cliente != null)
+            try
             {
-                cliente.ActualizarEstado(nuevoEstado);
-                _context.Clientes.Update(cliente); // Marca el cliente como modificado
-                _context.SaveChanges(); // Guarda los cambios en la base de datos
+                var cliente = ObtenerClientePorCedula(cedula);
+                if (cliente != null)
+                {
+                    cliente.ActualizarEstado(nuevoEstado);
+                    _context.Clientes.Update(cliente); // Marca el cliente como modificado
+                    _context.SaveChanges(); // Guarda los cambios en la base de datos
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al actualizar el estado del cliente: {ex.Message}");
             }
         }
     }

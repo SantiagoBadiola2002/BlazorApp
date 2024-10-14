@@ -14,20 +14,20 @@ namespace BlazorApp.Models
         public string Nombre { get; set; }
 
         public List<Operario> Operarios { get; set; }
-        public List<Cliente> ClientesEnEspera { get; set; }
+        public List<Cliente> Clientes { get; set; }
         public List<PuestoAtencion> PuestosDeAtencion { get; set; }
 
 
         public Oficina()
         {
             Operarios = new List<Operario>();
-            ClientesEnEspera = new List<Cliente>();
+            Clientes = new List<Cliente>();
             PuestosDeAtencion = new List<PuestoAtencion>();
         }
 
         public void AgregarCliente(Cliente cliente)
         {
-            ClientesEnEspera.Add(cliente);
+            Clientes.Add(cliente);
         }
 
         public void ActualizarMonitores()

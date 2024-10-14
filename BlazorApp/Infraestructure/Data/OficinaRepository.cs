@@ -20,7 +20,7 @@ namespace BlazorApp.Infraestructure.Data
 #pragma warning disable CS8603 // Posible tipo de valor devuelto de referencia nulo
             return _contexto.Oficinas
                             .Include(o => o.Operarios)
-                            .Include(o => o.ClientesEnEspera)
+                            .Include(o => o.Clientes)
                             .Include(o => o.PuestosDeAtencion)
                             .FirstOrDefault(o => o.Id == id);
 #pragma warning restore CS8603 // Posible tipo de valor devuelto de referencia nulo
@@ -32,7 +32,7 @@ namespace BlazorApp.Infraestructure.Data
             Console.WriteLine("#### Devolviendo todas las oficinas ####");
             return await _contexto.Oficinas
                             .Include(o => o.Operarios)
-                            .Include(o => o.ClientesEnEspera)
+                            .Include(o => o.Clientes)
                             .Include(o => o.PuestosDeAtencion)
                             .ToListAsync();
         }
@@ -50,7 +50,7 @@ namespace BlazorApp.Infraestructure.Data
         {
             var oficinaExistente = _contexto.Oficinas
                                             .Include(o => o.Operarios)
-                                            .Include(o => o.ClientesEnEspera)
+                                            .Include(o => o.Clientes)
                                             .Include(o => o.PuestosDeAtencion)
                                             .FirstOrDefault(o => o.Id == oficina.Id);
 
@@ -58,7 +58,7 @@ namespace BlazorApp.Infraestructure.Data
             {
                 oficinaExistente.Nombre = oficina.Nombre;
                 oficinaExistente.Operarios = oficina.Operarios;
-                oficinaExistente.ClientesEnEspera = oficina.ClientesEnEspera;
+                oficinaExistente.Clientes = oficina.Clientes;
                 oficinaExistente.PuestosDeAtencion = oficina.PuestosDeAtencion;
 
                 _contexto.SaveChanges();
@@ -75,5 +75,35 @@ namespace BlazorApp.Infraestructure.Data
                 _contexto.SaveChanges();
             }
         }
+
+        public async Task<List<Cliente>> ObtenerClientesEnEsperaPorOficinaAsync(int oficinaId)
+        {
+            try
+            {
+                // Buscar la oficina por su ID
+                var oficina = await _contexto.Oficinas
+                    .Include(o => o.Clientes) // Incluye clientes en la consulta
+                    .FirstOrDefaultAsync(o => o.Id == oficinaId);
+
+                // Si no se encuentra la oficina, retornamos una lista vacía
+                if (oficina == null)
+                {
+                    return new List<Cliente>();
+                }
+
+                // Filtrar los clientes de la oficina que están en estado de espera y ordenarlos por fecha de registro
+                return oficina.Clientes
+                    .Where(c => c.Estado == EstadoCliente.Esperando)
+                    .OrderBy(c => c.FechaRegistro) // Ordenar por fecha de menor a mayor
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al obtener clientes en espera para la oficina {oficinaId}: {ex.Message}");
+                return new List<Cliente>();
+            }
+        }
+
+
     }
 }

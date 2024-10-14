@@ -36,7 +36,7 @@
         <RadzenDataGridColumn Title="Clientes" Width="300px">
             <Template Context="data">
                 <ul>
-                    @foreach (var cliente in data.ClientesEnEspera)
+                    @foreach (var cliente in data.Clientes)
                     {
                         <li>Cliente Cédula: @cliente.Cedula, Fecha Registro: @cliente.FechaRegistro, Estado: @cliente.Estado</li>
                     }
