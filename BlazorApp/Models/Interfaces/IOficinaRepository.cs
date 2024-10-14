@@ -3,7 +3,7 @@
     public interface IOficinaRepository
     {
         Oficina ObtenerOficinaPorId(int id);
-        List<Oficina> ObtenerTodasLasOficinas();
+        Task<List<Oficina>> ObtenerTodasLasOficinasAsync();
         void AgregarOficina(Oficina oficina);
         void ActualizarOficina(Oficina oficina);
         void EliminarOficina(int id);

@@ -1,9 +1,14 @@
 ﻿@page "/registroCliente"
+@rendermode InteractiveServer
 @using BlazorApp.Models
 @using BlazorApp.Models.Interfaces
-@using BlazorApp.Infraestructure.Data
-@inject IOficinaRepository OficinaRepository
+@using BlazorApp.Models.BaseDeDatos
+@using Microsoft.EntityFrameworkCore
+
+@inject ContextoBD contextBd
 @inject IClienteRepository ClienteRepository
+
+<h3>Registro de Cliente</h3>
 
 @if (oficinas == null || oficinas.Count == 0)
 {
@@ -11,12 +16,20 @@
 }
 else
 {
-    <RadzenDropDown @bind-Value="selectedOficinaId"
-                    Data="@oficinas"
-                    TextProperty="Nombre"
-                    ValueProperty="Id" />
-    <RadzenTextBox @bind-Value="cedula" Placeholder="Ingrese su cédula" Style="width: 20%;" />
-    <RadzenButton Text="Registrar" Click="RegistrarCliente" Disabled="@(string.IsNullOrEmpty(cedula) || selectedOficinaId == 0)" />
+    <div class="rz-p-0 rz-p-md-12">
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" Style="border: var(--rz-grid-cell-border);">
+            <RadzenDropDown @bind-Value=@selectedOficinaId
+                            Data=@oficinas
+                            TextProperty="Nombre"
+                            ValueProperty="Id"
+                            Style="width: 100%; max-width: 400px;"
+                            Name="DropDownBindValue"
+                            Placeholder="Seleccione una oficina" />
+            <RadzenTextBox @bind-Value="cedula" Placeholder="Ingrese su cédula" Style="width: 20%;" />
+            <RadzenButton Text="Registrar" Click="@RegistrarCliente" Disabled="@(string.IsNullOrEmpty(cedula) || selectedOficinaId == 0)" />
+
+        </RadzenStack>
+    </div>
 }
 
 <p>@resultado</p>
@@ -29,8 +42,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        oficinas =  OficinaRepository.ObtenerTodasLasOficinas();
-
+        // Usar contextBd para obtener las oficinas directamente de la base de datos
+        oficinas = await contextBd.Oficinas.ToListAsync();
         if (oficinas != null && oficinas.Count > 0)
         {
             Console.WriteLine($"Se han cargado {oficinas.Count} oficinas.");
@@ -43,6 +56,8 @@ else
         {
             Console.WriteLine("No se encontraron oficinas.");
         }
+
+        StateHasChanged(); // Forzamos el renderizado
     }
 
     private void RegistrarCliente()

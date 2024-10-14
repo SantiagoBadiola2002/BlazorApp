@@ -27,17 +27,16 @@ namespace BlazorApp.Infraestructure.Data
         }
 
         // Obtiene todas las oficinas
-        public List<Oficina> ObtenerTodasLasOficinas()
+        public async Task<List<Oficina>> ObtenerTodasLasOficinasAsync()
         {
             Console.WriteLine("#### Devolviendo todas las oficinas ####");
-            return _contexto.Oficinas
+            return await _contexto.Oficinas
                             .Include(o => o.Operarios)
                             .Include(o => o.ClientesEnEspera)
                             .Include(o => o.PuestosDeAtencion)
-                            .ToList();
-
-            
+                            .ToListAsync();
         }
+
 
         // Agrega una nueva oficina
         public void AgregarOficina(Oficina oficina)

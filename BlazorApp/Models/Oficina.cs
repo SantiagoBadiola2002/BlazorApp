@@ -17,6 +17,7 @@ namespace BlazorApp.Models
         public List<Cliente> ClientesEnEspera { get; set; }
         public List<PuestoAtencion> PuestosDeAtencion { get; set; }
 
+
         public Oficina()
         {
             Operarios = new List<Operario>();
