@@ -1,0 +1,51 @@
+﻿@page "/selectOficinaSalaEspera"
+@rendermode InteractiveServer
+@using BlazorApp.Models
+@using BlazorApp.Models.Interfaces
+@inject IOficinaRepository OficinaRepository
+@inject NavigationManager NavigationManager
+
+<h1>Seleccione una oficina</h1>
+
+<!-- Agrupamos el DropDown y el Botón en un contenedor RadzenStack -->
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+    <!-- DropDown para seleccionar la oficina -->
+    <RadzenDropDown @bind-Value="selectedOficinaId"
+                    Data="oficinas"
+                    TextProperty="Nombre"
+                    ValueProperty="Id"
+                    Style="width: 100%; max-width: 300px;"
+                    Name="DropDownBindValue"
+                    Placeholder="Seleccione una oficina"
+                    Change="@(async (args) => await OficinaSeleccionada(args))" />
+
+    <!-- Botón de selección que redirige a la lista de clientes -->
+    <RadzenButton Text="Seleccionar!" class="rz-ripple" Disabled="@isButtonDisabled" Click="Redirigir" />
+</RadzenStack>
+
+@code {
+    private List<Oficina> oficinas = new List<Oficina>();
+    private int selectedOficinaId = 0;
+    private bool isButtonDisabled = true; // Deshabilitamos el botón hasta que se seleccione una oficina
+
+    protected override async Task OnInitializedAsync()
+    {
+        oficinas = await OficinaRepository.ObtenerTodasLasOficinasAsync();
+    }
+
+    private async Task OficinaSeleccionada(object args)
+    {
+        // Habilitar el botón si se selecciona una oficina
+        isButtonDisabled = selectedOficinaId == 0;
+    }
+
+    private void Redirigir()
+    {
+        // Redirigir a la página que muestra los clientes en espera
+        if (selectedOficinaId > 0)
+        {
+            Console.WriteLine("Redirigiendo a la sala de espera oficina ID: " + selectedOficinaId);
+            NavigationManager.NavigateTo($"/salaEspera?oficinaId={selectedOficinaId}");
+        }
+    }
+}

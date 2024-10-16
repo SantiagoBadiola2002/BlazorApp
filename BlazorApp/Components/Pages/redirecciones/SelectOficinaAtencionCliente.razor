@@ -1,0 +1,95 @@
+﻿@page "/SelectOficinaAtencionCliente"
+@rendermode InteractiveServer
+@using BlazorApp.Models
+@using BlazorApp.Models.Interfaces
+@inject IOficinaRepository OficinaRepository
+@inject NavigationManager NavigationManager
+
+<h1>Selecciona oficina y nombre operario</h1>
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+    <!-- DropDown para seleccionar la oficina -->
+    <RadzenDropDown @bind-Value="selectedOficinaId"
+                    Data="oficinas"
+                    TextProperty="Nombre"
+                    ValueProperty="Id"
+                    Style="width: 100%; max-width: 300px;"
+                    Name="DropDownBindValue"
+                    Placeholder="Seleccione una oficina"
+                    Change="@(async (args) => await OficinaSeleccionada(args))" />
+    <RadzenColumn Size="12" SizeMD="6" SizeLG="12">
+            <RadzenFormField Text="Nombre del Operario" Style="width: 100%; max-width: 300px;">
+            <RadzenTextBox @bind-Value="operarioNombre" Placeholder="Ingrese su nombre" />
+        </RadzenFormField>
+    </RadzenColumn>
+
+<RadzenButton Text="Ingresar!" class="rz-ripple" Disabled="@isButtonDisabled" Click="Redirigir" />
+</RadzenStack>
+<!-- Alerta de error -->
+@if (alertVisible)
+{
+    <RadzenAlert AlertStyle="@(isError ? AlertStyle.Danger : AlertStyle.Success)"
+                 Variant="Variant.Flat"
+                 Shade="Shade.Lighter"
+                 Title="@(isError ? "Error" : "Éxito")"
+                 Visible="true"
+                 AllowClose="false">
+        @alertMessage
+    </RadzenAlert>
+}
+
+@code {
+    private List<Oficina> oficinas;
+    private List<Operario> operarios;
+    private int selectedOficinaId;
+    private string operarioNombre;
+    private int operarioId;
+    private bool isButtonDisabled => string.IsNullOrEmpty(operarioNombre) || selectedOficinaId == 0;
+
+    // Variables para manejar la alerta
+    private bool alertVisible = false;
+    private bool isError = false;
+    private string alertMessage = "";
+
+    // Cargar las oficinas desde el repositorio
+    protected override async Task OnInitializedAsync()
+    {
+        oficinas = await OficinaRepository.ObtenerTodasLasOficinasAsync();
+    }
+
+    // Método que se llama al seleccionar una oficina
+    private async Task OficinaSeleccionada(object args)
+    {
+        selectedOficinaId = (int)args;
+
+        // Cargar los operarios de la oficina seleccionada
+        var oficina = OficinaRepository.ObtenerOficinaPorId(selectedOficinaId);
+        if (oficina != null)
+        {
+            operarios = oficina.Operarios;
+        }
+
+        // Resetear la alerta al cambiar de oficina
+        alertVisible = false;
+    }
+
+    // Redirigir a la página de atención al cliente con los parámetros
+    private void Redirigir()
+    {
+        // Buscar el ID del operario basado en el nombre ingresado
+        var operario = operarios?.FirstOrDefault(o => o.Nombre.Equals(operarioNombre, StringComparison.OrdinalIgnoreCase));
+        if (operario != null)
+        {
+            operarioId = operario.Id;
+            Console.WriteLine("Redirigiendo a atencion cliente oficina ID: " + selectedOficinaId + ", Operario ID: " + operarioId);
+            NavigationManager.NavigateTo($"/AtencionAlCliente?oficinaId={selectedOficinaId}&operarioId={operarioId}");
+        }
+        else
+        {
+            // Mostrar mensaje de error: Operario no encontrado
+            alertVisible = true;
+            isError = true;
+            alertMessage = "Operario no encontrado en la oficina seleccionada.";
+            Console.WriteLine("Operario no encontrado");
+        }
+    }
+}
