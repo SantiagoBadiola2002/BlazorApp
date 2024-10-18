@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BlazorApp.Migrations
 {
     [DbContext(typeof(ContextoBD))]
-    [Migration("20241012040320_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20241018001858_Administrador2 y GerenteDeCalidad2")]
+    partial class Administrador2yGerenteDeCalidad2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -22,9 +22,30 @@ namespace BlazorApp.Migrations
                 .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
+            modelBuilder.Entity("BlazorApp.Models.Administrador", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Administradores");
+                });
+
             modelBuilder.Entity("BlazorApp.Models.Cliente", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
                     b.Property<string>("Cedula")
+                        .IsRequired()
                         .HasMaxLength(12)
                         .HasColumnType("varchar(12)");
 
@@ -37,11 +58,33 @@ namespace BlazorApp.Migrations
                     b.Property<int?>("OficinaId")
                         .HasColumnType("int");
 
-                    b.HasKey("Cedula");
+                    b.HasKey("Id");
 
                     b.HasIndex("OficinaId");
 
                     b.ToTable("Clientes");
+                });
+
+            modelBuilder.Entity("BlazorApp.Models.GerenteCalidad", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("ClientesAtendidos")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)");
+
+                    b.Property<TimeSpan>("TiempoPromedioAtencion")
+                        .HasColumnType("time(6)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("GerentesCalidad");
                 });
 
             modelBuilder.Entity("BlazorApp.Models.Oficina", b =>
@@ -65,6 +108,11 @@ namespace BlazorApp.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    b.Property<string>("Contraseña")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.Property<bool>("EstaDisponible")
                         .HasColumnType("tinyint(1)");
@@ -117,7 +165,7 @@ namespace BlazorApp.Migrations
             modelBuilder.Entity("BlazorApp.Models.Cliente", b =>
                 {
                     b.HasOne("BlazorApp.Models.Oficina", null)
-                        .WithMany("ClientesEnEspera")
+                        .WithMany("Clientes")
                         .HasForeignKey("OficinaId");
                 });
 
@@ -149,7 +197,7 @@ namespace BlazorApp.Migrations
 
             modelBuilder.Entity("BlazorApp.Models.Oficina", b =>
                 {
-                    b.Navigation("ClientesEnEspera");
+                    b.Navigation("Clientes");
 
                     b.Navigation("Operarios");
 

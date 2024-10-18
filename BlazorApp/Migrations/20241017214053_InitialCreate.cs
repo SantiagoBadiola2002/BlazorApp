@@ -7,7 +7,7 @@ using MySql.EntityFrameworkCore.Metadata;
 namespace BlazorApp.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -33,6 +33,8 @@ namespace BlazorApp.Migrations
                 name: "Clientes",
                 columns: table => new
                 {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     Cedula = table.Column<string>(type: "varchar(12)", maxLength: 12, nullable: false),
                     FechaRegistro = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     Estado = table.Column<int>(type: "int", nullable: false),
@@ -40,7 +42,7 @@ namespace BlazorApp.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Clientes", x => x.Cedula);
+                    table.PrimaryKey("PK_Clientes", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Clientes_Oficinas_OficinaId",
                         column: x => x.OficinaId,
@@ -81,7 +83,8 @@ namespace BlazorApp.Migrations
                     Nombre = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
                     PuestoAsignadoId = table.Column<int>(type: "int", nullable: false),
                     EstaDisponible = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    OficinaId = table.Column<int>(type: "int", nullable: false)
+                    OficinaId = table.Column<int>(type: "int", nullable: false),
+                    Contraseña = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {

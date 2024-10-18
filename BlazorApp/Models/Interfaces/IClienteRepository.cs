@@ -4,7 +4,9 @@
     {
         void AgregarCliente(Cliente cliente);
         Cliente ObtenerClientePorCedula(string cedula);
+        Cliente ObtenerClientePorId(int id);
         IList<Cliente> ObtenerClientesEnEspera();
-        void ActualizarEstadoCliente(string cedula, EstadoCliente nuevoEstado);
+        void ActualizarEstadoClientePorCedula(string cedula, EstadoCliente nuevoEstado);
+        void ActualizarEstadoClientePorId(int id, EstadoCliente nuevoEstado);
     }
 }

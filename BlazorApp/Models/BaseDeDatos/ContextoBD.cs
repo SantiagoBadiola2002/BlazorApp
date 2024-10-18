@@ -12,5 +12,7 @@ namespace BlazorApp.Models.BaseDeDatos
         public DbSet<PuestoAtencion> PuestosAtencion { get; set; }
         public DbSet<Operario> Operarios { get; set; }
         public DbSet<Oficina> Oficinas { get; set; }
+        public DbSet<Administrador> Administradores { get; set; }
+        public DbSet<GerenteCalidad> GerentesCalidad { get; set; }
     }
 }

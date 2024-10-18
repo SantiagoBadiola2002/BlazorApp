@@ -13,6 +13,21 @@ namespace BlazorApp.Infraestructure.Data
             _context = context;
         }
 
+        // Nuevo método para obtener cliente por Id
+        public Cliente ObtenerClientePorId(int id)
+        {
+            try
+            {
+                return _context.Clientes.FirstOrDefault(c => c.Id == id);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al obtener el cliente por Id: {ex.Message}");
+                return null;
+            }
+        }
+
+        // Método existente para agregar un cliente
         public void AgregarCliente(Cliente cliente)
         {
             try
@@ -26,6 +41,7 @@ namespace BlazorApp.Infraestructure.Data
             }
         }
 
+        // Método para obtener un cliente por cédula
         public Cliente ObtenerClientePorCedula(string cedula)
         {
             try
@@ -39,6 +55,7 @@ namespace BlazorApp.Infraestructure.Data
             }
         }
 
+        // Método para obtener clientes en espera
         public IList<Cliente> ObtenerClientesEnEspera()
         {
             try
@@ -54,7 +71,8 @@ namespace BlazorApp.Infraestructure.Data
             }
         }
 
-        public void ActualizarEstadoCliente(string cedula, EstadoCliente nuevoEstado)
+        // Método para actualizar el estado de un cliente por cédula
+        public void ActualizarEstadoClientePorCedula(string cedula, EstadoCliente nuevoEstado)
         {
             try
             {
@@ -68,7 +86,26 @@ namespace BlazorApp.Infraestructure.Data
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al actualizar el estado del cliente: {ex.Message}");
+                Console.WriteLine($"Error al actualizar el estado del cliente por cédula: {ex.Message}");
+            }
+        }
+
+        // Nuevo método para actualizar el estado de un cliente por Id
+        public void ActualizarEstadoClientePorId(int id, EstadoCliente nuevoEstado)
+        {
+            try
+            {
+                var cliente = ObtenerClientePorId(id);
+                if (cliente != null)
+                {
+                    cliente.ActualizarEstado(nuevoEstado);
+                    _context.Clientes.Update(cliente); // Marca el cliente como modificado
+                    _context.SaveChanges(); // Guarda los cambios en la base de datos
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al actualizar el estado del cliente por Id: {ex.Message}");
             }
         }
     }

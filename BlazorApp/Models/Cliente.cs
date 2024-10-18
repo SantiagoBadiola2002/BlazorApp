@@ -4,9 +4,11 @@ namespace BlazorApp.Models
 {
     public class Cliente
     {
-        [Key]
+        [Key] 
+        public int Id { get; set; }
+
         [Required]
-        [StringLength(12)] 
+        [StringLength(12)]
         public string Cedula { get; set; }
 
         [Required]

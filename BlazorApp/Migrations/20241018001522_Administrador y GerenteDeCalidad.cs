@@ -5,7 +5,7 @@
 namespace BlazorApp.Migrations
 {
     /// <inheritdoc />
-    public partial class EstadoCliente : Migration
+    public partial class AdministradoryGerenteDeCalidad : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
