@@ -1,8 +1,9 @@
 ﻿@page "/SelectOficinaAtencionCliente"
 @rendermode InteractiveServer
-@using BlazorApp.Models
+@using BlazorApp.Models.DTs
 @using BlazorApp.Models.Interfaces
 @inject IOficinaRepository OficinaRepository
+@inject IOperarioRepository OperarioRepository
 @inject NavigationManager NavigationManager
 
 <h1>Selecciona oficina y nombre operario</h1>
@@ -17,13 +18,14 @@
                     Placeholder="Seleccione una oficina"
                     Change="@(async (args) => await OficinaSeleccionada(args))" />
     <RadzenColumn Size="12" SizeMD="6" SizeLG="12">
-            <RadzenFormField Text="Nombre del Operario" Style="width: 100%; max-width: 300px;">
+        <RadzenFormField Text="Nombre del Operario" Style="width: 100%; max-width: 300px;">
             <RadzenTextBox @bind-Value="operarioNombre" Placeholder="Ingrese su nombre" />
         </RadzenFormField>
     </RadzenColumn>
 
-<RadzenButton Text="Ingresar!" class="rz-ripple" Disabled="@isButtonDisabled" Click="Redirigir" />
+    <RadzenButton Text="Ingresar!" class="rz-ripple" Disabled="@isButtonDisabled" Click="Redirigir" />
 </RadzenStack>
+
 <!-- Alerta de error -->
 @if (alertVisible)
 {
@@ -38,8 +40,8 @@
 }
 
 @code {
-    private List<Oficina> oficinas;
-    private List<Operario> operarios;
+    private List<DTOficina> oficinas;
+    private List<DTOperario> operarios;
     private int selectedOficinaId;
     private string operarioNombre;
     private int operarioId;
@@ -50,10 +52,10 @@
     private bool isError = false;
     private string alertMessage = "";
 
-    // Cargar las oficinas desde el repositorio
+    // Cargar las oficinas como DTOs desde el repositorio
     protected override async Task OnInitializedAsync()
     {
-        oficinas = await OficinaRepository.ObtenerTodasLasOficinasAsync();
+        oficinas = await OficinaRepository.ObtenerTodasLasOficinasDTOAsync();
     }
 
     // Método que se llama al seleccionar una oficina
@@ -61,12 +63,8 @@
     {
         selectedOficinaId = (int)args;
 
-        // Cargar los operarios de la oficina seleccionada
-        var oficina = OficinaRepository.ObtenerOficinaPorId(selectedOficinaId);
-        if (oficina != null)
-        {
-            operarios = oficina.Operarios;
-        }
+        // Obtener los detalles completos de los operarios de la oficina seleccionada
+        operarios = await OperarioRepository.ObtenerOperariosPorOficinaIdAsync(selectedOficinaId);
 
         // Resetear la alerta al cambiar de oficina
         alertVisible = false;
@@ -76,7 +74,7 @@
     private void Redirigir()
     {
         // Buscar el ID del operario basado en el nombre ingresado
-        var operario = operarios?.FirstOrDefault(o => o.Nombre.Equals(operarioNombre, StringComparison.OrdinalIgnoreCase));
+        var operario = operarios?.FirstOrDefault(o => !string.IsNullOrEmpty(o.Nombre) && o.Nombre.Equals(operarioNombre, StringComparison.OrdinalIgnoreCase));
         if (operario != null)
         {
             operarioId = operario.Id;

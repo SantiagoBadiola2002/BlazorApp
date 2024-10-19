@@ -1,11 +1,8 @@
 ﻿@page "/registroCliente"
 @rendermode InteractiveServer
 @using BlazorApp.Models
+@using BlazorApp.Models.DTs
 @using BlazorApp.Models.Interfaces
-@using BlazorApp.Models.BaseDeDatos
-@using Microsoft.EntityFrameworkCore
-
-@inject ContextoBD contextBd
 @inject IClienteRepository ClienteRepository
 @inject IOficinaRepository OficinaRepository
 
@@ -46,7 +43,7 @@ else
 }
 
 @code {
-    private List<Oficina> oficinas;
+    private List<DTOficina> oficinas;
     private int selectedOficinaId;
     private string cedula;
     private string alertMessage; // Para el mensaje de alerta
@@ -57,8 +54,8 @@ else
     {
         try
         {
-            // Usar contextBd para obtener las oficinas directamente de la base de datos
-            oficinas = await contextBd.Oficinas.ToListAsync();
+            // Obtener las oficinas como DTOs
+            oficinas = await OficinaRepository.ObtenerTodasLasOficinasDTOAsync();
 
             if (oficinas != null && oficinas.Count > 0)
             {
@@ -93,10 +90,16 @@ else
         {
             try
             {
-                var nuevoCliente = new Cliente(cedula);
-                ClienteRepository.AgregarCliente(nuevoCliente); // Verificamos si el cliente ya existe
-                oficina.AgregarCliente(nuevoCliente);
-                OficinaRepository.ActualizarOficina(oficina);
+                // Crear el nuevo cliente como DTO
+                var nuevoCliente = new DTCliente
+                    {
+                        Cedula = cedula,
+                        Estado = EstadoCliente.Esperando, // Suponiendo que "Esperando" es un valor válido
+                        FechaRegistro = DateTime.Now
+                    };
+
+                // Registrar cliente en la oficina
+                await OficinaRepository.RegistrarClienteEnOficinaAsync(oficina.Id, nuevoCliente);
 
                 // Mostrar mensaje de éxito
                 alertMessage = $"Cliente registrado exitosamente en la oficina {oficina.Nombre}.";

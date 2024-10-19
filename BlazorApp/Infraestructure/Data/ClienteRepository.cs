@@ -1,6 +1,11 @@
 ﻿using BlazorApp.Models;
 using BlazorApp.Models.Interfaces;
 using BlazorApp.Models.BaseDeDatos;
+using Microsoft.EntityFrameworkCore;
+using BlazorApp.Models.DTs;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace BlazorApp.Infraestructure.Data
 {
@@ -13,12 +18,12 @@ namespace BlazorApp.Infraestructure.Data
             _context = context;
         }
 
-        // Nuevo método para obtener cliente por Id
-        public Cliente ObtenerClientePorId(int id)
+        public async Task<DTCliente> ObtenerClientePorIdAsync(int id)
         {
             try
             {
-                return _context.Clientes.FirstOrDefault(c => c.Id == id);
+                var cliente = await _context.Clientes.FirstOrDefaultAsync(c => c.Id == id);
+                return cliente != null ? DTsMapped.ConvertirAClienteDTO(cliente) : null;
             }
             catch (Exception ex)
             {
@@ -27,13 +32,20 @@ namespace BlazorApp.Infraestructure.Data
             }
         }
 
-        // Método existente para agregar un cliente
-        public void AgregarCliente(Cliente cliente)
+        public async Task AgregarClienteAsync(DTCliente clienteDTO)
         {
             try
             {
-                _context.Clientes.Add(cliente);
-                _context.SaveChanges(); // Guarda los cambios en la base de datos
+                var cliente = new Cliente
+                {
+                    Id = clienteDTO.Id,
+                    Cedula = clienteDTO.Cedula,
+                    FechaRegistro = clienteDTO.FechaRegistro,
+                    Estado = clienteDTO.Estado
+                };
+
+                await _context.Clientes.AddAsync(cliente);
+                await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -41,12 +53,12 @@ namespace BlazorApp.Infraestructure.Data
             }
         }
 
-        // Método para obtener un cliente por cédula
-        public Cliente ObtenerClientePorCedula(string cedula)
+        public async Task<DTCliente> ObtenerClientePorCedulaAsync(string cedula)
         {
             try
             {
-                return _context.Clientes.FirstOrDefault(c => c.Cedula == cedula);
+                var cliente = await _context.Clientes.FirstOrDefaultAsync(c => c.Cedula == cedula);
+                return cliente != null ? DTsMapped.ConvertirAClienteDTO(cliente) : null;
             }
             catch (Exception ex)
             {
@@ -55,33 +67,33 @@ namespace BlazorApp.Infraestructure.Data
             }
         }
 
-        // Método para obtener clientes en espera
-        public IList<Cliente> ObtenerClientesEnEspera()
+        public async Task<IList<DTCliente>> ObtenerClientesEnEsperaAsync()
         {
             try
             {
-                return _context.Clientes
+                var clientes = await _context.Clientes
                     .Where(c => c.Estado == EstadoCliente.Esperando)
-                    .ToList();
+                    .ToListAsync();
+
+                return clientes.Select(c => DTsMapped.ConvertirAClienteDTO(c)).ToList();
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error al obtener clientes en espera: {ex.Message}");
-                return new List<Cliente>();
+                return new List<DTCliente>();
             }
         }
 
-        // Método para actualizar el estado de un cliente por cédula
-        public void ActualizarEstadoClientePorCedula(string cedula, EstadoCliente nuevoEstado)
+        public async Task ActualizarEstadoClientePorCedulaAsync(string cedula, EstadoCliente nuevoEstado)
         {
             try
             {
-                var cliente = ObtenerClientePorCedula(cedula);
+                var cliente = await _context.Clientes.FirstOrDefaultAsync(c => c.Cedula == cedula);
                 if (cliente != null)
                 {
                     cliente.ActualizarEstado(nuevoEstado);
-                    _context.Clientes.Update(cliente); // Marca el cliente como modificado
-                    _context.SaveChanges(); // Guarda los cambios en la base de datos
+                    _context.Clientes.Update(cliente);
+                    await _context.SaveChangesAsync();
                 }
             }
             catch (Exception ex)
@@ -90,17 +102,16 @@ namespace BlazorApp.Infraestructure.Data
             }
         }
 
-        // Nuevo método para actualizar el estado de un cliente por Id
-        public void ActualizarEstadoClientePorId(int id, EstadoCliente nuevoEstado)
+        public async Task ActualizarEstadoClientePorIdAsync(int id, EstadoCliente nuevoEstado)
         {
             try
             {
-                var cliente = ObtenerClientePorId(id);
+                var cliente = await _context.Clientes.FirstOrDefaultAsync(c => c.Id == id);
                 if (cliente != null)
                 {
                     cliente.ActualizarEstado(nuevoEstado);
-                    _context.Clientes.Update(cliente); // Marca el cliente como modificado
-                    _context.SaveChanges(); // Guarda los cambios en la base de datos
+                    _context.Clientes.Update(cliente);
+                    await _context.SaveChangesAsync();
                 }
             }
             catch (Exception ex)

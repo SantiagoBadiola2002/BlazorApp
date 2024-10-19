@@ -7,5 +7,6 @@
         public int PuestoAsignadoId { get; set; } 
         public bool EstaDisponible { get; set; } 
         public int OficinaId { get; set; } 
+        public string Contraseña { get; set; }
     }
 }

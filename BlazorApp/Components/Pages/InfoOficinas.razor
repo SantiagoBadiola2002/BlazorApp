@@ -1,6 +1,6 @@
 ﻿@page "/infoOficinas"
 @rendermode InteractiveServer
-@using BlazorApp.Models
+@using BlazorApp.Models.DTs
 @using BlazorApp.Models.Interfaces
 @inject IOficinaRepository OficinaRepository
 
@@ -8,15 +8,15 @@
 
 <RadzenDataGrid AllowFiltering="true" AllowSorting="true" PageSize="5" AllowPaging="true" Data="@oficinas" ColumnWidth="300px">
     <Columns>
-        <RadzenDataGridColumn Property="@nameof(Oficina.Id)" Title="Oficina ID" Width="80px" TextAlign="TextAlign.Center" />
-        <RadzenDataGridColumn Property="@nameof(Oficina.Nombre)" Title="Nombre" Width="95px" />
+        <RadzenDataGridColumn Property="@nameof(DTOficina.Id)" Title="Oficina ID" Width="80px" TextAlign="TextAlign.Center" />
+        <RadzenDataGridColumn Property="@nameof(DTOficina.Nombre)" Title="Nombre" Width="95px" />
 
         <RadzenDataGridColumn Title="Puestos de Atención" Width="195px">
             <Template Context="data">
                 <ul>
-                    @foreach (var puesto in data.PuestosDeAtencion)
+                    @foreach (var puestoId in data.PuestosDeAtencionIds)
                     {
-                        <li>Puesto ID: @puesto.Id, Número: @puesto.Numero, Esta Libre: @puesto.EstaLibre</li>
+                        <li>Puesto ID: @puestoId</li> <!-- Aquí puedes personalizar la visualización de los puestos si tienes más detalles disponibles -->
                     }
                 </ul>
             </Template>
@@ -25,9 +25,9 @@
         <RadzenDataGridColumn Title="Operarios" Width="240px">
             <Template Context="data">
                 <ul>
-                    @foreach (var operario in data.Operarios)
+                    @foreach (var operarioId in data.OperariosIds)
                     {
-                        <li>Operario ID: @operario.Id, Nombre: @operario.Nombre, Disponible: @operario.EstaDisponible</li>
+                        <li>Operario ID: @operarioId</li> <!-- Similar al puesto, puedes personalizar si tienes más información del operario -->
                     }
                 </ul>
             </Template>
@@ -36,9 +36,9 @@
         <RadzenDataGridColumn Title="Clientes" Width="300px">
             <Template Context="data">
                 <ul>
-                    @foreach (var cliente in data.Clientes)
+                    @foreach (var clienteId in data.ClientesIds)
                     {
-                        <li>Cliente Cédula: @cliente.Cedula, Fecha Registro: @cliente.FechaRegistro, Estado: @cliente.Estado</li>
+                        <li>Cliente ID: @clienteId</li> <!-- Puedes obtener más detalles si es necesario -->
                     }
                 </ul>
             </Template>
@@ -47,10 +47,11 @@
 </RadzenDataGrid>
 
 @code {
-    private List<Oficina> oficinas;
+    private List<DTOficina> oficinas;
 
     protected override async Task OnInitializedAsync()
     {
-        oficinas = await OficinaRepository.ObtenerTodasLasOficinasAsync();
+        // Usamos el método que retorna las oficinas en formato DTO
+        oficinas = await OficinaRepository.ObtenerTodasLasOficinasDTOAsync();
     }
 }

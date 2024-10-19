@@ -1,12 +1,14 @@
-﻿namespace BlazorApp.Models.Interfaces
+﻿using BlazorApp.Models.DTs;
+
+namespace BlazorApp.Models.Interfaces
 {
     public interface IClienteRepository
     {
-        void AgregarCliente(Cliente cliente);
-        Cliente ObtenerClientePorCedula(string cedula);
-        Cliente ObtenerClientePorId(int id);
-        IList<Cliente> ObtenerClientesEnEspera();
-        void ActualizarEstadoClientePorCedula(string cedula, EstadoCliente nuevoEstado);
-        void ActualizarEstadoClientePorId(int id, EstadoCliente nuevoEstado);
+        Task<DTCliente> ObtenerClientePorIdAsync(int id);
+        Task AgregarClienteAsync(DTCliente cliente);
+        Task<DTCliente> ObtenerClientePorCedulaAsync(string cedula);
+        Task<IList<DTCliente>> ObtenerClientesEnEsperaAsync();
+        Task ActualizarEstadoClientePorCedulaAsync(string cedula, EstadoCliente nuevoEstado);
+        Task ActualizarEstadoClientePorIdAsync(int id, EstadoCliente nuevoEstado);
     }
 }

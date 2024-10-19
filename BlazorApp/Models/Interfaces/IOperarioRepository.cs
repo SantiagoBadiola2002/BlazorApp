@@ -1,11 +1,15 @@
-﻿namespace BlazorApp.Models.Interfaces
+﻿using BlazorApp.Models.DTs;
+
+namespace BlazorApp.Models.Interfaces
 {
     public interface IOperarioRepository
     {
-        Operario GetOperarioById(int id);
-        IList<Operario> GetAllOperarios();
-        void AddOperario(Operario operario);
-        void UpdateOperario(Operario operario);
-        void DeleteOperario(int id);
+        Task<DTOperario> GetOperarioByIdAsync(int id);
+        Task<IList<DTOperario>> GetAllOperariosAsync();
+        Task AddOperarioAsync(DTOperario operario);
+        Task UpdateOperarioAsync(DTOperario operario);
+        Task DeleteOperarioAsync(int id);
+        Task<DTOperario> VerificarCredencialesAsync(string nombre, string contraseña);
+        Task<List<DTOperario>> ObtenerOperariosPorOficinaIdAsync(int oficinaId);
     }
 }

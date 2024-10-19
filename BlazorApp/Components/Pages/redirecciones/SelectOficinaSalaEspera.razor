@@ -1,6 +1,6 @@
 ﻿@page "/selectOficinaSalaEspera"
 @rendermode InteractiveServer
-@using BlazorApp.Models
+@using BlazorApp.Models.DTs
 @using BlazorApp.Models.Interfaces
 @inject IOficinaRepository OficinaRepository
 @inject NavigationManager NavigationManager
@@ -24,13 +24,14 @@
 </RadzenStack>
 
 @code {
-    private List<Oficina> oficinas = new List<Oficina>();
+    private List<DTOficina> oficinas = new List<DTOficina>();
     private int selectedOficinaId = 0;
     private bool isButtonDisabled = true; // Deshabilitamos el botón hasta que se seleccione una oficina
 
     protected override async Task OnInitializedAsync()
     {
-        oficinas = await OficinaRepository.ObtenerTodasLasOficinasAsync();
+        // Ahora obtenemos las oficinas como DTOs
+        oficinas = await OficinaRepository.ObtenerTodasLasOficinasDTOAsync();
     }
 
     private async Task OficinaSeleccionada(object args)

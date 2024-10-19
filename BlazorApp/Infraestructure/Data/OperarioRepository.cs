@@ -1,8 +1,11 @@
 ﻿using BlazorApp.Models;
 using BlazorApp.Models.Interfaces;
 using BlazorApp.Models.BaseDeDatos;
+using Microsoft.EntityFrameworkCore;
+using BlazorApp.Models.DTs;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace BlazorApp.Infraestructure.Data
 {
@@ -10,18 +13,17 @@ namespace BlazorApp.Infraestructure.Data
     {
         private readonly ContextoBD _context;
 
-        // Constructor que inyecta el contexto de la base de datos
         public OperarioRepository(ContextoBD context)
         {
             _context = context;
         }
 
-        // Obtener Operario por Id
-        public Operario GetOperarioById(int id)
+        public async Task<DTOperario> GetOperarioByIdAsync(int id)
         {
             try
             {
-                return _context.Operarios.FirstOrDefault(o => o.Id == id);
+                var operario = await _context.Operarios.FirstOrDefaultAsync(o => o.Id == id);
+                return operario != null ? DTsMapped.ConvertirAOperarioDTO(operario) : null;
             }
             catch (Exception ex)
             {
@@ -30,27 +32,36 @@ namespace BlazorApp.Infraestructure.Data
             }
         }
 
-        // Obtener todos los operarios
-        public IList<Operario> GetAllOperarios()
+        public async Task<IList<DTOperario>> GetAllOperariosAsync()
         {
             try
             {
-                return _context.Operarios.ToList();
+                var operarios = await _context.Operarios.ToListAsync();
+                return operarios.Select(o => DTsMapped.ConvertirAOperarioDTO(o)).ToList();
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error al obtener todos los operarios: {ex.Message}");
-                return new List<Operario>();
+                return new List<DTOperario>();
             }
         }
 
-        // Agregar nuevo operario
-        public void AddOperario(Operario operario)
+        public async Task AddOperarioAsync(DTOperario operarioDTO)
         {
             try
             {
-                _context.Operarios.Add(operario);
-                _context.SaveChanges();
+                var operario = new Operario
+                {
+                    Id = operarioDTO.Id,
+                    Nombre = operarioDTO.Nombre,
+                    EstaDisponible = operarioDTO.EstaDisponible,
+                    PuestoAsignado = await _context.PuestosAtencion.FirstOrDefaultAsync(p => p.Id == operarioDTO.PuestoAsignadoId),
+                    OficinaId = operarioDTO.OficinaId,
+                    Contraseña = operarioDTO.Contraseña // Si este campo está incluido en el DTO
+                };
+
+                await _context.Operarios.AddAsync(operario);
+                await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -58,21 +69,21 @@ namespace BlazorApp.Infraestructure.Data
             }
         }
 
-        // Actualizar un operario existente
-        public void UpdateOperario(Operario operario)
+        public async Task UpdateOperarioAsync(DTOperario operarioDTO)
         {
             try
             {
-                var existingOperario = GetOperarioById(operario.Id);
+                var existingOperario = await _context.Operarios.FirstOrDefaultAsync(o => o.Id == operarioDTO.Id);
                 if (existingOperario != null)
                 {
-                    existingOperario.Nombre = operario.Nombre;
-                    existingOperario.EstaDisponible = operario.EstaDisponible;
-                    existingOperario.PuestoAsignado = operario.PuestoAsignado;
-                    existingOperario.OficinaId = operario.OficinaId;
-                    existingOperario.Contraseña = operario.Contraseña; // Actualiza también la contraseña
+                    existingOperario.Nombre = operarioDTO.Nombre;
+                    existingOperario.EstaDisponible = operarioDTO.EstaDisponible;
+                    existingOperario.PuestoAsignado = await _context.PuestosAtencion.FirstOrDefaultAsync(p => p.Id == operarioDTO.PuestoAsignadoId);
+                    existingOperario.OficinaId = operarioDTO.OficinaId;
+                    existingOperario.Contraseña = operarioDTO.Contraseña; // Actualizamos la contraseña si está en el DTO
+
                     _context.Operarios.Update(existingOperario);
-                    _context.SaveChanges();
+                    await _context.SaveChangesAsync();
                 }
             }
             catch (Exception ex)
@@ -81,16 +92,15 @@ namespace BlazorApp.Infraestructure.Data
             }
         }
 
-        // Eliminar un operario por Id
-        public void DeleteOperario(int id)
+        public async Task DeleteOperarioAsync(int id)
         {
             try
             {
-                var operario = GetOperarioById(id);
+                var operario = await _context.Operarios.FirstOrDefaultAsync(o => o.Id == id);
                 if (operario != null)
                 {
                     _context.Operarios.Remove(operario);
-                    _context.SaveChanges();
+                    await _context.SaveChangesAsync();
                 }
             }
             catch (Exception ex)
@@ -99,18 +109,36 @@ namespace BlazorApp.Infraestructure.Data
             }
         }
 
-        // Método adicional: Verificar la contraseña de un operario
-        public Operario VerificarCredenciales(string nombre, string contraseña)
+        public async Task<DTOperario> VerificarCredencialesAsync(string nombre, string contraseña)
         {
             try
             {
-                return _context.Operarios
-                    .FirstOrDefault(o => o.Nombre == nombre && o.Contraseña == contraseña);
+                var operario = await _context.Operarios
+                    .FirstOrDefaultAsync(o => o.Nombre == nombre && o.Contraseña == contraseña);
+
+                return operario != null ? DTsMapped.ConvertirAOperarioDTO(operario) : null;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error al verificar las credenciales del operario: {ex.Message}");
                 return null;
+            }
+        }
+
+        public async Task<List<DTOperario>> ObtenerOperariosPorOficinaIdAsync(int oficinaId)
+        {
+            try
+            {
+                var operarios = await _context.Operarios
+                    .Where(o => o.OficinaId == oficinaId)
+                    .ToListAsync();
+
+                return operarios.Select(o => DTsMapped.ConvertirAOperarioDTO(o)).ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al obtener operarios por oficina Id: {ex.Message}");
+                return new List<DTOperario>();
             }
         }
     }

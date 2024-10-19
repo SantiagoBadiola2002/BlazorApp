@@ -19,6 +19,8 @@ namespace BlazorApp.Models
         [Display(Name = "Estado del Cliente")]
         public EstadoCliente Estado { get; set; } //0:Esperando, 1:Procesando, 2:Atendido
 
+        public Cliente() { }
+
         public Cliente(string cedula)
         {
             Cedula = cedula;

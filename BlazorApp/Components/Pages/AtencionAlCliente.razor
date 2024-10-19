@@ -1,6 +1,6 @@
 ﻿@page "/atencionAlCliente"
 @rendermode InteractiveServer
-@using BlazorApp.Models
+@using BlazorApp.Models.DTs
 @using BlazorApp.Models.Interfaces
 @inject IOficinaRepository OficinaRepository
 @inject NavigationManager NavigationManager
@@ -9,7 +9,6 @@
 <h2>Oficina: @nombreOficina Operario ID: @operarioId</h2>
 
 <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" Gap="0.5rem" class="rz-p-2">
-    
     @if (clientesEnEspera == null || clientesEnEspera.Count == 0)
     {
         <p>No hay clientes en espera para la oficina seleccionada.</p>
@@ -19,7 +18,7 @@
         <RadzenDataList AllowVirtualization="@allowVirtualization"
                         Style="@(allowVirtualization ? "height:400px;overflow:auto;" : "")"
                         WrapItems="@(!allowVirtualization)" AllowPaging="@(!allowVirtualization)"
-                        Data="@clientesEnEspera" TItem="Cliente" PageSize="5" ShowPagingSummary="true">
+                        Data="@clientesEnEspera" TItem="DTCliente" PageSize="5" ShowPagingSummary="true">
             <Template Context="cliente">
                 <RadzenCard Variant="Variant.Outlined" class="rz-p-0" Style="width: 100%; overflow: hidden;">
                     <RadzenRow Gap="0">
@@ -54,7 +53,7 @@
     private int oficinaId = 0; // Inicializa a 0 para representar "no seleccionado"
     private int operarioId = 0; // Variable para almacenar el ID del operario
     private string nombreOficina = null;
-    private List<Cliente> clientesEnEspera = new List<Cliente>();
+    private List<DTCliente> clientesEnEspera = new List<DTCliente>();
     private bool allowVirtualization = false; // Control para virtualización
 
     protected override async Task OnInitializedAsync()
@@ -79,14 +78,14 @@
     {
         if (oficinaId > 0)
         {
-            // Obtener los clientes en espera de la oficina
-            clientesEnEspera = await OficinaRepository.ObtenerClientesEnEsperaPorOficinaAsync(oficinaId);
+            // Obtener los clientes en espera como DTOs
+            clientesEnEspera = await OficinaRepository.ObtenerClientesEnEsperaPorOficinaDTOAsync(oficinaId);
 
-            // Obtener el nombre de la oficina
-            var oficina = OficinaRepository.ObtenerOficinaPorId(oficinaId);
-            if (oficina != null)
+            // Obtener el nombre de la oficina usando el DTO
+            var oficinaDTO = OficinaRepository.ObtenerOficinaPorIdDTO(oficinaId);
+            if (oficinaDTO != null)
             {
-                nombreOficina = oficina.Nombre;
+                nombreOficina = oficinaDTO.Nombre;
             }
         }
         else
