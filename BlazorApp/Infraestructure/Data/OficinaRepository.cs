@@ -97,39 +97,52 @@ namespace BlazorApp.Infraestructure.Data
 
         public async Task RegistrarClienteEnOficinaAsync(int oficinaId, DTCliente nuevoCliente)
         {
-            // Agregar el cliente al repositorio de clientes
-            await _contexto.Clientes.AddAsync(new Cliente
-            {
-                Cedula = nuevoCliente.Cedula,
-                FechaRegistro = nuevoCliente.FechaRegistro,
-                Estado = nuevoCliente.Estado
-            });
-
-            // Guardar los cambios para el cliente
-            await _contexto.SaveChangesAsync();
-
-            // Obtener la oficina y agregar el cliente a la oficina
+            // Obtener la oficina y verificar si existe
             var oficina = await _contexto.Oficinas
                 .Include(o => o.Clientes) // Incluir los clientes existentes
                 .FirstOrDefaultAsync(o => o.Id == oficinaId);
 
             if (oficina != null)
             {
-                // Relacionar el cliente con la oficina
-                oficina.Clientes.Add(new Cliente
-                {
-                    Cedula = nuevoCliente.Cedula,
-                    FechaRegistro = nuevoCliente.FechaRegistro,
-                    Estado = nuevoCliente.Estado
-                });
+                // Verificar si hay algún cliente con la misma cédula y en estado 'Esperando'
+                var clienteExistente = oficina.Clientes.FirstOrDefault(c => c.Cedula == nuevoCliente.Cedula && c.Estado == EstadoCliente.Esperando);
 
-                // Guardar los cambios para la oficina
-                await _contexto.SaveChangesAsync();
+                if (clienteExistente == null)
+                {
+                    // No hay clientes con la misma cédula en estado 'Esperando', se puede registrar el nuevo cliente
+                    var cliente = new Cliente
+                    {
+                        Cedula = nuevoCliente.Cedula,
+                        FechaRegistro = nuevoCliente.FechaRegistro,
+                        Estado = nuevoCliente.Estado
+                    };
+
+                    // Agregar el cliente a la lista de clientes de la oficina
+                    oficina.Clientes.Add(cliente);
+
+                    // Guardar los cambios en la base de datos
+                    await _contexto.SaveChangesAsync();
+
+                    Console.WriteLine("### OficinaRepository ###");
+                    Console.WriteLine("Cliente Cedula: " + nuevoCliente.Cedula + " registrado en la oficina ID: " + oficina.Id);
+                    Console.WriteLine("#########################");
+                }
+                else
+                {
+                    // Existe un cliente con la misma cédula en estado 'Esperando'
+                    Console.WriteLine("### OficinaRepository ###");
+                    Console.WriteLine("No se puede registrar el cliente con cédula: " + nuevoCliente.Cedula + " porque ya existe uno con estado 'Esperando' en la oficina ID: " + oficina.Id);
+                    Console.WriteLine("#########################");
+                }
+            }
+            else
+            {
+                // La oficina no existe
+                Console.WriteLine("### OficinaRepository ###");
+                Console.WriteLine("Oficina no encontrada para la ID: " + oficinaId);
+                Console.WriteLine("#########################");
             }
         }
-
-
-
 
 
     }

@@ -1,0 +1,42 @@
+﻿@page "/SelectOficinaRegistrarClientes"
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@using BlazorApp.Models.DTs
+@using BlazorApp.Models.Interfaces
+@inject IOficinaRepository OficinaRepository
+
+<h3>Seleccione una Oficina</h3>
+
+@if (oficinas == null || oficinas.Count == 0)
+{
+    <p><em>Cargando oficinas...</em></p>
+}
+else
+{
+    <RadzenDropDown @bind-Value="selectedOficinaId"
+                    Data=@oficinas
+                    TextProperty="Nombre"
+                    ValueProperty="Id"
+                    Style="width: 100%; max-width: 400px;"
+                    Placeholder="Seleccione una oficina" />
+    <RadzenButton Text="Continuar" Click="@Continuar" Disabled="@(selectedOficinaId == 0)" />
+}
+
+@code {
+    private List<DTOficina> oficinas;
+    private int selectedOficinaId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        oficinas = await OficinaRepository.ObtenerTodasLasOficinasDTOAsync();
+    }
+
+    private void Continuar()
+    {
+        // Redirigir a la página de registro cliente con la oficina seleccionada
+        Console.WriteLine("### SelectOficinaRegistrarClientes ###");
+        Console.WriteLine("Redirigiendo a la oficina ID: " + selectedOficinaId);
+        Console.WriteLine("######################################");
+        NavigationManager.NavigateTo($"/registroCliente/{selectedOficinaId}");
+    }
+}

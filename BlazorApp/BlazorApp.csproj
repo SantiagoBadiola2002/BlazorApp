@@ -40,10 +40,16 @@
 
   <ItemGroup>
     <_ContentIncludedByDefault Remove="Components\Pages\InfoOficinas.razor" />
+    <_ContentIncludedByDefault Remove="Components\Pages\redirecciones\SelectOficinaRegistrarClientes.razor" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="Components\Pages\InfoOficinas.razor" />
+    <None Include="Components\Pages\redirecciones\SelectOficinaRegistrarClientes.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Components\Pages\redirecciones\SelectOficinaRegistrarClientes.razor" />
   </ItemGroup>
 
 </Project>
