@@ -22,7 +22,6 @@ namespace BlazorApp.Infraestructure.Data
             var oficina = _contexto.Oficinas
                             .Include(o => o.Operarios)
                             .Include(o => o.Clientes)
-                            .Include(o => o.PuestosDeAtencion)
                             .FirstOrDefault(o => o.Id == id);
 #pragma warning restore CS8603 // Posible tipo de valor devuelto de referencia nulo
 
@@ -35,7 +34,6 @@ namespace BlazorApp.Infraestructure.Data
             var oficinas = await _contexto.Oficinas
                             .Include(o => o.Operarios)
                             .Include(o => o.Clientes)
-                            .Include(o => o.PuestosDeAtencion)
                             .ToListAsync();
 
             return oficinas.Select(DTsMapped.ConvertirAOficinaDTO).ToList();
@@ -81,7 +79,6 @@ namespace BlazorApp.Infraestructure.Data
             var oficinaExistente = _contexto.Oficinas
                                             .Include(o => o.Operarios)
                                             .Include(o => o.Clientes)
-                                            .Include(o => o.PuestosDeAtencion)
                                             .FirstOrDefault(o => o.Id == oficina.Id);
 
             if (oficinaExistente != null)
@@ -89,7 +86,6 @@ namespace BlazorApp.Infraestructure.Data
                 oficinaExistente.Nombre = oficina.Nombre;
                 oficinaExistente.Operarios = oficina.Operarios;
                 oficinaExistente.Clientes = oficina.Clientes;
-                oficinaExistente.PuestosDeAtencion = oficina.PuestosDeAtencion;
 
                 _contexto.SaveChanges();
             }

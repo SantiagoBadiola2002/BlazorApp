@@ -13,14 +13,6 @@
         {
             <li>
                 <h4>Oficina ID: @oficina.Id, Nombre: @oficina.Nombre</h4>
-                <p><strong>Puestos de atención:</strong></p>
-                <ul>
-                    @foreach (var puesto in oficina.PuestosDeAtencion)
-                    {
-                        <li>Puesto ID: @puesto.Id, Número: @puesto.Numero, EstaLibre: @puesto.EstaLibre, Operario Asignado: @puesto.IdOperarioAsignado</li>
-                    }
-                </ul>
-
                 <p><strong>Operarios:</strong></p>
                 <ul>
                     @foreach (var operario in oficina.Operarios)

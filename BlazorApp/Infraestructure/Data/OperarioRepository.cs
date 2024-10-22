@@ -55,7 +55,6 @@ namespace BlazorApp.Infraestructure.Data
                     Id = operarioDTO.Id,
                     Nombre = operarioDTO.Nombre,
                     EstaDisponible = operarioDTO.EstaDisponible,
-                    PuestoAsignado = await _context.PuestosAtencion.FirstOrDefaultAsync(p => p.Id == operarioDTO.PuestoAsignadoId),
                     OficinaId = operarioDTO.OficinaId,
                     Contraseña = operarioDTO.Contraseña // Si este campo está incluido en el DTO
                 };
@@ -78,7 +77,6 @@ namespace BlazorApp.Infraestructure.Data
                 {
                     existingOperario.Nombre = operarioDTO.Nombre;
                     existingOperario.EstaDisponible = operarioDTO.EstaDisponible;
-                    existingOperario.PuestoAsignado = await _context.PuestosAtencion.FirstOrDefaultAsync(p => p.Id == operarioDTO.PuestoAsignadoId);
                     existingOperario.OficinaId = operarioDTO.OficinaId;
                     existingOperario.Contraseña = operarioDTO.Contraseña; // Actualizamos la contraseña si está en el DTO
 

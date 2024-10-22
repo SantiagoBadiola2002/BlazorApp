@@ -116,41 +116,43 @@ namespace BlazorApp.Migrations
                     b.Property<int>("OficinaId")
                         .HasColumnType("int");
 
-                    b.Property<int>("PuestoAsignadoId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("OficinaId");
-
-                    b.HasIndex("PuestoAsignadoId");
 
                     b.ToTable("Operarios");
                 });
 
-            modelBuilder.Entity("BlazorApp.Models.PuestoAtencion", b =>
+            modelBuilder.Entity("BlazorApp.Models.RegistroDeAtencion", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("RegistroDeAtencionId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<bool>("EstaLibre")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<int>("IdOperarioAsignado")
+                    b.Property<int>("ClienteId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Numero")
-                        .HasColumnType("int");
+                    b.Property<TimeSpan>("DuracionAtencion")
+                        .HasColumnType("time(6)");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("OficinaId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.Property<int>("OperarioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("RegistroDeAtencionId");
+
+                    b.HasIndex("ClienteId");
 
                     b.HasIndex("OficinaId");
 
-                    b.ToTable("PuestosAtencion");
+                    b.HasIndex("OperarioId");
+
+                    b.ToTable("RegistrosDeAtencion");
                 });
 
             modelBuilder.Entity("BlazorApp.Models.Cliente", b =>
@@ -167,23 +169,33 @@ namespace BlazorApp.Migrations
                         .HasForeignKey("OficinaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
 
-                    b.HasOne("BlazorApp.Models.PuestoAtencion", "PuestoAsignado")
+            modelBuilder.Entity("BlazorApp.Models.RegistroDeAtencion", b =>
+                {
+                    b.HasOne("BlazorApp.Models.Cliente", "Cliente")
                         .WithMany()
-                        .HasForeignKey("PuestoAsignadoId")
+                        .HasForeignKey("ClienteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("PuestoAsignado");
-                });
-
-            modelBuilder.Entity("BlazorApp.Models.PuestoAtencion", b =>
-                {
-                    b.HasOne("BlazorApp.Models.Oficina", null)
-                        .WithMany("PuestosDeAtencion")
+                    b.HasOne("BlazorApp.Models.Oficina", "Oficina")
+                        .WithMany()
                         .HasForeignKey("OficinaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("BlazorApp.Models.Operario", "Operario")
+                        .WithMany()
+                        .HasForeignKey("OperarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cliente");
+
+                    b.Navigation("Oficina");
+
+                    b.Navigation("Operario");
                 });
 
             modelBuilder.Entity("BlazorApp.Models.Oficina", b =>
@@ -191,8 +203,6 @@ namespace BlazorApp.Migrations
                     b.Navigation("Clientes");
 
                     b.Navigation("Operarios");
-
-                    b.Navigation("PuestosDeAtencion");
                 });
 #pragma warning restore 612, 618
         }

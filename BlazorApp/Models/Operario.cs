@@ -13,9 +13,6 @@ namespace BlazorApp.Models
         [StringLength(30)]
         public string Nombre { get; set; }
 
-        [Required]
-        public PuestoAtencion PuestoAsignado { get; set; }
-
         public bool EstaDisponible { get; set; }
 
         [ForeignKey("Oficina")]
@@ -29,11 +26,10 @@ namespace BlazorApp.Models
 
         public Operario() { }
 
-        public Operario(int id, string nombre, PuestoAtencion puestoAsignado, bool estaDisponible, int oficinaId, string contraseña)
+        public Operario(int id, string nombre, bool estaDisponible, int oficinaId, string contraseña)
         {
             Id = id;
             Nombre = nombre;
-            PuestoAsignado = puestoAsignado;
             EstaDisponible = estaDisponible;
             OficinaId = oficinaId;
             Contraseña = contraseña;
@@ -48,10 +44,5 @@ namespace BlazorApp.Models
             EstaDisponible = true;
         }
 
-        public void LiberarPuesto()
-        {
-            EstaDisponible = true;
-            PuestoAsignado.Liberar();
-        }
     }
 }

@@ -11,17 +11,6 @@
         <RadzenDataGridColumn Property="@nameof(DTOficina.Id)" Title="Oficina ID" Width="80px" TextAlign="TextAlign.Center" />
         <RadzenDataGridColumn Property="@nameof(DTOficina.Nombre)" Title="Nombre" Width="95px" />
 
-        <RadzenDataGridColumn Title="Puestos de Atención" Width="195px">
-            <Template Context="data">
-                <ul>
-                    @foreach (var puestoId in data.PuestosDeAtencionIds)
-                    {
-                        <li>Puesto ID: @puestoId</li> <!-- Aquí puedes personalizar la visualización de los puestos si tienes más detalles disponibles -->
-                    }
-                </ul>
-            </Template>
-        </RadzenDataGridColumn>
-
         <RadzenDataGridColumn Title="Operarios" Width="240px">
             <Template Context="data">
                 <ul>

@@ -13,7 +13,6 @@ namespace BlazorApp.Models
                 Nombre = oficina.Nombre,
                 OperariosIds = oficina.Operarios.Select(o => o.Id).ToList(),
                 ClientesIds = oficina.Clientes.Select(c => c.Id).ToList(),
-                PuestosDeAtencionIds = oficina.PuestosDeAtencion.Select(p => p.Id).ToList()
             };
         }
 
@@ -24,7 +23,6 @@ namespace BlazorApp.Models
             {
                 Id = operario.Id,
                 Nombre = operario.Nombre,
-                PuestoAsignadoId = operario.PuestoAsignado.Id,
                 EstaDisponible = operario.EstaDisponible,
                 OficinaId = operario.OficinaId
             };

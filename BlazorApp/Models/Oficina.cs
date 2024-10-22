@@ -15,14 +15,12 @@ namespace BlazorApp.Models
 
         public List<Operario> Operarios { get; set; }
         public List<Cliente> Clientes { get; set; }
-        public List<PuestoAtencion> PuestosDeAtencion { get; set; }
 
 
         public Oficina()
         {
             Operarios = new List<Operario>();
             Clientes = new List<Cliente>();
-            PuestosDeAtencion = new List<PuestoAtencion>();
         }
 
         public void AgregarCliente(Cliente cliente)
@@ -34,12 +32,5 @@ namespace BlazorApp.Models
         {
         }
 
-        public void AsignarPuestoAOperario(Operario operario, PuestoAtencion puesto)
-        {
-            if (puesto.EstaLibre && operario.EstaDisponible)
-            {
-                puesto.Ocupar();
-            }
-        }
     }
 }

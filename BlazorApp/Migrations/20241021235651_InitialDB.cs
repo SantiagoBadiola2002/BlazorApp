@@ -7,12 +7,40 @@ using MySql.EntityFrameworkCore.Metadata;
 namespace BlazorApp.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterDatabase()
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Administradores",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    Nombre = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Administradores", x => x.Id);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "GerentesCalidad",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    Nombre = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GerentesCalidad", x => x.Id);
+                })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
@@ -52,36 +80,12 @@ namespace BlazorApp.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "PuestosAtencion",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    Numero = table.Column<int>(type: "int", nullable: false),
-                    EstaLibre = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    IdOperarioAsignado = table.Column<int>(type: "int", nullable: false),
-                    OficinaId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PuestosAtencion", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_PuestosAtencion_Oficinas_OficinaId",
-                        column: x => x.OficinaId,
-                        principalTable: "Oficinas",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySQL:Charset", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "Operarios",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     Nombre = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
-                    PuestoAsignadoId = table.Column<int>(type: "int", nullable: false),
                     EstaDisponible = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     OficinaId = table.Column<int>(type: "int", nullable: false),
                     Contraseña = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
@@ -93,12 +97,6 @@ namespace BlazorApp.Migrations
                         name: "FK_Operarios_Oficinas_OficinaId",
                         column: x => x.OficinaId,
                         principalTable: "Oficinas",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Operarios_PuestosAtencion_PuestoAsignadoId",
-                        column: x => x.PuestoAsignadoId,
-                        principalTable: "PuestosAtencion",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
@@ -113,29 +111,22 @@ namespace BlazorApp.Migrations
                 name: "IX_Operarios_OficinaId",
                 table: "Operarios",
                 column: "OficinaId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Operarios_PuestoAsignadoId",
-                table: "Operarios",
-                column: "PuestoAsignadoId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PuestosAtencion_OficinaId",
-                table: "PuestosAtencion",
-                column: "OficinaId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "Administradores");
+
+            migrationBuilder.DropTable(
                 name: "Clientes");
 
             migrationBuilder.DropTable(
-                name: "Operarios");
+                name: "GerentesCalidad");
 
             migrationBuilder.DropTable(
-                name: "PuestosAtencion");
+                name: "Operarios");
 
             migrationBuilder.DropTable(
                 name: "Oficinas");

@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BlazorApp.Migrations
 {
     [DbContext(typeof(ContextoBD))]
-    [Migration("20241018001858_Administrador2 y GerenteDeCalidad2")]
-    partial class Administrador2yGerenteDeCalidad2
+    [Migration("20241021235651_InitialDB")]
+    partial class InitialDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -71,16 +71,10 @@ namespace BlazorApp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("ClientesAtendidos")
-                        .HasColumnType("int");
-
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("varchar(30)");
-
-                    b.Property<TimeSpan>("TiempoPromedioAtencion")
-                        .HasColumnType("time(6)");
 
                     b.HasKey("Id");
 
@@ -125,41 +119,11 @@ namespace BlazorApp.Migrations
                     b.Property<int>("OficinaId")
                         .HasColumnType("int");
 
-                    b.Property<int>("PuestoAsignadoId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("OficinaId");
-
-                    b.HasIndex("PuestoAsignadoId");
 
                     b.ToTable("Operarios");
-                });
-
-            modelBuilder.Entity("BlazorApp.Models.PuestoAtencion", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<bool>("EstaLibre")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<int>("IdOperarioAsignado")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Numero")
-                        .HasColumnType("int");
-
-                    b.Property<int>("OficinaId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OficinaId");
-
-                    b.ToTable("PuestosAtencion");
                 });
 
             modelBuilder.Entity("BlazorApp.Models.Cliente", b =>
@@ -176,23 +140,6 @@ namespace BlazorApp.Migrations
                         .HasForeignKey("OficinaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("BlazorApp.Models.PuestoAtencion", "PuestoAsignado")
-                        .WithMany()
-                        .HasForeignKey("PuestoAsignadoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("PuestoAsignado");
-                });
-
-            modelBuilder.Entity("BlazorApp.Models.PuestoAtencion", b =>
-                {
-                    b.HasOne("BlazorApp.Models.Oficina", null)
-                        .WithMany("PuestosDeAtencion")
-                        .HasForeignKey("OficinaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("BlazorApp.Models.Oficina", b =>
@@ -200,8 +147,6 @@ namespace BlazorApp.Migrations
                     b.Navigation("Clientes");
 
                     b.Navigation("Operarios");
-
-                    b.Navigation("PuestosDeAtencion");
                 });
 #pragma warning restore 612, 618
         }
