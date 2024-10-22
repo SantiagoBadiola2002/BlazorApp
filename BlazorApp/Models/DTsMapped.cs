@@ -24,7 +24,8 @@ namespace BlazorApp.Models
                 Id = operario.Id,
                 Nombre = operario.Nombre,
                 EstaDisponible = operario.EstaDisponible,
-                OficinaId = operario.OficinaId
+                OficinaId = operario.OficinaId,
+                Contraseña = operario.Contraseña,
             };
         }
 

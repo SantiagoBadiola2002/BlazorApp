@@ -18,8 +18,14 @@
                     Placeholder="Seleccione una oficina"
                     Change="@(async (args) => await OficinaSeleccionada(args))" />
     <RadzenColumn Size="12" SizeMD="6" SizeLG="12">
+        <!-- Campo para el nombre del operario -->
         <RadzenFormField Text="Nombre del Operario" Style="width: 100%; max-width: 300px;">
             <RadzenTextBox @bind-Value="operarioNombre" Placeholder="Ingrese su nombre" />
+        </RadzenFormField>
+
+        <!-- Campo para la contraseña del operario -->
+        <RadzenFormField Text="Contraseña del Operario" Style="width: 100%; max-width: 300px;">
+            <RadzenTextBox @bind-Value="operarioContraseña" Placeholder="Ingrese su contraseña" Type="password" />
         </RadzenFormField>
     </RadzenColumn>
 
@@ -44,8 +50,11 @@
     private List<DTOperario> operarios;
     private int selectedOficinaId;
     private string operarioNombre;
+    private string operarioContraseña;  // Nueva variable para la contraseña
     private int operarioId;
-    private bool isButtonDisabled => string.IsNullOrEmpty(operarioNombre) || selectedOficinaId == 0;
+
+    // Condición para habilitar el botón: nombre, contraseña y oficina deben estar seleccionados
+    private bool isButtonDisabled => string.IsNullOrEmpty(operarioNombre) || string.IsNullOrEmpty(operarioContraseña) || selectedOficinaId == 0;
 
     // Variables para manejar la alerta
     private bool alertVisible = false;
@@ -66,6 +75,13 @@
         // Obtener los detalles completos de los operarios de la oficina seleccionada
         operarios = await OperarioRepository.ObtenerOperariosPorOficinaIdAsync(selectedOficinaId);
 
+        // Depuración: imprimir todos los operarios recuperados
+        Console.WriteLine("Operarios recuperados:");
+        foreach (var operario in operarios)
+        {
+            Console.WriteLine($"Operario ID: {operario.Id}, Nombre: {operario.Nombre}, Contraseña: {operario.Contraseña}");
+        }
+
         // Resetear la alerta al cambiar de oficina
         alertVisible = false;
     }
@@ -73,8 +89,10 @@
     // Redirigir a la página de atención al cliente con los parámetros
     private void Redirigir()
     {
-        // Buscar el ID del operario basado en el nombre ingresado
-        var operario = operarios?.FirstOrDefault(o => !string.IsNullOrEmpty(o.Nombre) && o.Nombre.Equals(operarioNombre, StringComparison.OrdinalIgnoreCase));
+        // Buscar el operario basado en el nombre ingresado y verificar la contraseña
+        var operario = operarios?.FirstOrDefault(o => !string.IsNullOrEmpty(o.Nombre)
+                                                   && o.Nombre.Equals(operarioNombre, StringComparison.OrdinalIgnoreCase)
+                                                   && o.Contraseña == operarioContraseña);
         if (operario != null)
         {
             operarioId = operario.Id;
@@ -83,11 +101,11 @@
         }
         else
         {
-            // Mostrar mensaje de error: Operario no encontrado
+            // Mostrar mensaje de error: Operario no encontrado o contraseña incorrecta
             alertVisible = true;
             isError = true;
-            alertMessage = "Operario no encontrado en la oficina seleccionada.";
-            Console.WriteLine("Operario no encontrado");
+            alertMessage = "Operario no encontrado o contraseña incorrecta.";
+            Console.WriteLine("Operario no encontrado o contraseña incorrecta");
         }
     }
 }
