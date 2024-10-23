@@ -7,7 +7,7 @@
 @inject IOperarioRepository OperarioRepository
 @inject IClienteRepository ClienteRepository
 @inject NavigationManager NavigationManager
-<!-- inject BlazorApp.Hubs.NotificacionesHub HubContext; -->
+@inject IHubContext<BlazorApp.Hubs.NotificacionesHub> HubContext;
 
 <h1>Atención al Cliente</h1>
 

@@ -2,11 +2,21 @@
 @rendermode InteractiveServer
 @using BlazorApp.Models.DTs
 @using BlazorApp.Models.Interfaces
+@using Microsoft.AspNetCore.SignalR;
+@using Microsoft.AspNetCore.SignalR.Client
+
 @inject IOficinaRepository OficinaRepository
+@inject IClienteRepository ClienteRepository
 @inject NavigationManager NavigationManager
+@inject IHubContext<BlazorApp.Hubs.NotificacionesHub> HubContext; // Inyectar el HubContext para enviar mensajes si es necesario
 
 <h1>Sala De Espera</h1>
 <h2>Oficina @nombreOficina</h2>
+
+@if (mostrarMensaje)
+{
+    <div class="notification">@mensajeNotificacion</div>
+}
 
 <!-- RadzenStack para agrupar los elementos verticalmente -->
 <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" Gap="0.5rem" class="rz-p-2">
@@ -53,27 +63,58 @@
     private List<DTCliente> clientesEnEspera = new List<DTCliente>();
     private bool allowVirtualization = false; // Control para virtualización
 
+    // Para la notificación temporal
+    private string mensajeNotificacion;
+    private bool mostrarMensaje = false;
+
     protected override async Task OnInitializedAsync()
     {
         // Obtener el parámetro de consulta "oficinaId"
         var uri = new Uri(NavigationManager.Uri);
         var queryParams = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
 
-        if (queryParams.TryGetValue("oficinaId", out var oficinaIdValue))
+        if (queryParams.TryGetValue("oficinaId", out var oficinaIdValue) && int.TryParse(oficinaIdValue, out oficinaId))
         {
-            if (int.TryParse(oficinaIdValue, out int oficinaId))
-            {
-                this.oficinaId = oficinaId;
-                await CargarClientesEnEspera();
-            }
+            await CargarClientesEnEspera();
         }
+
+        // Aquí aún necesitas configurar una conexión cliente para escuchar notificaciones en la sala de espera
+        var hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/notificacionesHub"))
+            .Build();
+
+        hubConnection.On<int>("LlamandoCliente", async (clienteId) =>
+        {
+            // Busca el cliente en la lista para identificarlo
+            var clienteLlamado = clientesEnEspera.FirstOrDefault(c => c.Id == clienteId);
+            if (clienteLlamado != null)
+            {
+                ClienteRepository.ActualizarEstadoClientePorIdAsync(clienteId, Models.EstadoCliente.Procesando);
+                mensajeNotificacion = $"El operario está llamando al cliente con cédula {clienteLlamado.Cedula}.";
+                mostrarMensaje = true;
+                await InvokeAsync(StateHasChanged);
+
+                // Ocultar el mensaje después de 5 segundos
+                await Task.Delay(5000);
+                mostrarMensaje = false;
+                await InvokeAsync(StateHasChanged);
+
+                await Task.Delay(5000);
+
+                // Refrescar la página después de 10 segundos
+                NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+            }
+            
+        });
+
+        await hubConnection.StartAsync();
     }
 
     private async Task CargarClientesEnEspera()
     {
         if (oficinaId > 0)
         {
-            // Ahora obtenemos los clientes en espera como DTOs
+            // Obtener los clientes en espera como DTOs
             clientesEnEspera = await OficinaRepository.ObtenerClientesEnEsperaPorOficinaDTOAsync(oficinaId);
 
             // Obtener nombre de la oficina usando el método DTO
@@ -85,11 +126,10 @@
             clientesEnEspera.Clear();
         }
     }
-}
 
-<style>
-    .product-title {
-        min-height: 72px;
-        background-color: var(--rz-secondary-lighter);
+    public async Task NotificarDesdeSala(int clienteId)
+    {
+        // Si necesitas notificar desde la sala de espera, puedes hacerlo usando el HubContext
+        await HubContext.Clients.All.SendAsync("LlamandoCliente", clienteId);
     }
-</style>
+}

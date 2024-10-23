@@ -2,8 +2,10 @@
 @rendermode InteractiveServer
 @using BlazorApp.Models.DTs
 @using BlazorApp.Models.Interfaces
+@using Microsoft.AspNetCore.SignalR;
 @inject IOficinaRepository OficinaRepository
 @inject NavigationManager NavigationManager
+@inject IHubContext<BlazorApp.Hubs.NotificacionesHub> HubContext; // Inyectar el HubContext
 
 <h1>Atención al Cliente</h1>
 <h2>Oficina: @nombreOficina Operario ID: @operarioId</h2>
@@ -42,9 +44,12 @@
                             @if (cliente == clientesEnEspera.First()) // Solo se puede atender al primer cliente de la lista
                             {
                                 <RadzenButton Text="Atender Cliente"
-                                              Click="@(args => NavigationManager.NavigateTo($"/detalleAtencionCliente/{cliente.Id}/{operarioId}/{oficinaId}"))"
+                                              Click="@(async args => {
+                                                  // Notificar usando HubContext cuando se atiende al cliente
+                                                  await HubContext.Clients.All.SendAsync("LlamandoCliente", cliente.Id);
+                                                  NavigationManager.NavigateTo($"/detalleAtencionCliente/{cliente.Id}/{operarioId}/{oficinaId}");
+                                              })"
                                               Style="width: 100%" />
-
                             }
                         </RadzenColumn>
                     </RadzenRow>
@@ -98,12 +103,4 @@
             clientesEnEspera.Clear();
         }
     }
-
 }
-
-<style>
-    .product-title {
-        min-height: 72px;
-        background-color: var(--rz-secondary-lighter);
-    }
-</style>
