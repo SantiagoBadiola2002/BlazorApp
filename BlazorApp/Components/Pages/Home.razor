@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using BlazorApp.Models;
+@using BlazorApp.Models.DTs
 @using BlazorApp.Models.Interfaces
 
 @inject IOficinaRepository OficinaRepository
@@ -8,29 +9,7 @@
 
 @if (oficinas != null && oficinas.Any())
 {
-    <ul>
-        @foreach (var oficina in oficinas)
-        {
-            <li>
-                <h4>Oficina ID: @oficina.Id, Nombre: @oficina.Nombre</h4>
-                <p><strong>Operarios:</strong></p>
-                <ul>
-                    @foreach (var operario in oficina.Operarios)
-                    {
-                        <li>Operario ID: @operario.Id, Nombre: @operario.Nombre, Disponible: @operario.EstaDisponible</li>
-                    }
-                </ul>
-
-                <p><strong>Clientes en espera:</strong></p>
-                <ul>
-                    @foreach (var cliente in oficina.Clientes)
-                    {
-                        <li>Cliente Cédula: @cliente.Cedula, FechaRegistro: @cliente.FechaRegistro, Estado: @cliente.Estado</li>
-                    }
-                </ul>
-            </li>
-        }
-    </ul>
+   
 }
 else
 {
@@ -38,11 +17,11 @@ else
 }
 
 @code {
-    private List<Oficina> oficinas;
+    private List<DTOficina> oficinas;
 
     protected override async Task OnInitializedAsync()
     {
-        //oficinas = OficinaRepository.ObtenerTodasLasOficinasAsync();
+        // Cargar todas las oficinas de manera asíncrona
+        oficinas = await OficinaRepository.ObtenerTodasLasOficinasDTOAsync();
     }
 }
-

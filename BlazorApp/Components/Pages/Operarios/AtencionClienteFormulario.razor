@@ -1,0 +1,73 @@
+﻿@page "/detalleAtencionCliente/{clienteId:int}/{operarioId:int}/{oficinaId:int}"
+@rendermode InteractiveServer
+@using BlazorApp.Models.DTs
+@using BlazorApp.Models.Interfaces
+@using Microsoft.AspNetCore.SignalR;
+@inject IOficinaRepository OficinaRepository
+@inject IOperarioRepository OperarioRepository
+@inject IClienteRepository ClienteRepository
+@inject NavigationManager NavigationManager
+<!-- inject BlazorApp.Hubs.NotificacionesHub HubContext; -->
+
+<h1>Atención al Cliente</h1>
+
+<RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" Gap="1rem" class="rz-p-2">
+    <!-- Mostrar los valores con etiquetas -->
+    <div>
+        <label><strong>Cliente:</strong> @atencionCliente.ClienteId</label>
+    </div>
+    <div>
+        <label><strong>Operario:</strong> @atencionCliente.OperarioId</label>
+    </div>
+    <div>
+        <label><strong>Oficina:</strong> @atencionCliente.OficinaId</label>
+    </div>
+    <div>
+        <label><strong>Fecha:</strong> @atencionCliente.Fecha.ToString("dd/MM/yyyy")</label>
+    </div>
+    <div>
+        <label><strong>Duración:</strong> @atencionCliente.Duracion minutos</label>
+    </div>
+
+    <!-- Botón para guardar la atención -->
+    <RadzenButton Text="Guardar Atención" Click="GuardarAtencion" Style="width: 100%;" />
+</RadzenStack>
+
+<!-- Botón para cancelar -->
+<RadzenButton Text="Cancelar" Click="@Cancelar" Style="width: 100%;" />
+
+@code {
+    private DTAtencionCliente atencionCliente = new DTAtencionCliente();
+    private Random random = new Random(); // Inicializar la clase Random
+
+    [Parameter] public int clienteId { get; set; }
+    [Parameter] public int operarioId { get; set; }
+    [Parameter] public int oficinaId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        atencionCliente.ClienteId = clienteId;
+        atencionCliente.OperarioId = operarioId;
+        atencionCliente.OficinaId = oficinaId;
+        atencionCliente.Fecha = DateTime.Now; // Prellenar con la fecha actual
+        atencionCliente.Duracion = random.Next(1, 31); // Generar un número aleatorio entre 1 y 30
+    }
+
+    private async Task GuardarAtencion()
+    {
+        // Guardar la atención cliente (llama al repositorio para almacenar)
+        await OficinaRepository.AtenderCliente(clienteId, operarioId, oficinaId, atencionCliente.Fecha, atencionCliente.Duracion);
+        Console.WriteLine("Atención cliente guardada");
+
+        // Notificar a la sala de espera que el cliente fue atendido
+        //await HubContext.Clients.All.SendAsync("ClienteAtendido", clienteId);
+
+        NavigationManager.NavigateTo($"/AtencionAlCliente?oficinaId={oficinaId}&operarioId={operarioId}");
+    }
+
+    private void Cancelar()
+    {
+        ClienteRepository.ActualizarEstadoClientePorIdAsync(clienteId, Models.EstadoCliente.Atendido);
+        NavigationManager.NavigateTo($"/AtencionAlCliente?oficinaId={oficinaId}&operarioId={operarioId}");
+    }
+}

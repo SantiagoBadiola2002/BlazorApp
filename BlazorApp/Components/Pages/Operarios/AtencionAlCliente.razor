@@ -39,9 +39,12 @@
                         </RadzenColumn>
                         <!-- Botón Atender Cliente solo para el primer cliente -->
                         <RadzenColumn Size="12" SizeLG="4" class="rz-p-4">
-                            @if (cliente == clientesEnEspera.First()) //Solo se puede atender al primer cliente de la lista
+                            @if (cliente == clientesEnEspera.First()) // Solo se puede atender al primer cliente de la lista
                             {
-                                <RadzenButton Text="Atender Cliente" Style="width: 100%" />
+                                <RadzenButton Text="Atender Cliente"
+                                              Click="@(args => NavigationManager.NavigateTo($"/detalleAtencionCliente/{cliente.Id}/{operarioId}/{oficinaId}"))"
+                                              Style="width: 100%" />
+
                             }
                         </RadzenColumn>
                     </RadzenRow>
@@ -50,7 +53,6 @@
         </RadzenDataList>
     }
 </RadzenStack>
-
 
 @code {
     private int oficinaId = 0; // Inicializa a 0 para representar "no seleccionado"
@@ -96,6 +98,7 @@
             clientesEnEspera.Clear();
         }
     }
+
 }
 
 <style>

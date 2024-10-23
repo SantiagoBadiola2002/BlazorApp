@@ -75,19 +75,12 @@
         // Obtener los detalles completos de los operarios de la oficina seleccionada
         operarios = await OperarioRepository.ObtenerOperariosPorOficinaIdAsync(selectedOficinaId);
 
-        // Depuración: imprimir todos los operarios recuperados
-        Console.WriteLine("Operarios recuperados:");
-        foreach (var operario in operarios)
-        {
-            Console.WriteLine($"Operario ID: {operario.Id}, Nombre: {operario.Nombre}, Contraseña: {operario.Contraseña}");
-        }
-
         // Resetear la alerta al cambiar de oficina
         alertVisible = false;
     }
 
     // Redirigir a la página de atención al cliente con los parámetros
-    private void Redirigir()
+    private async void Redirigir()
     {
         // Buscar el operario basado en el nombre ingresado y verificar la contraseña
         var operario = operarios?.FirstOrDefault(o => !string.IsNullOrEmpty(o.Nombre)
@@ -106,6 +99,11 @@
             isError = true;
             alertMessage = "Operario no encontrado o contraseña incorrecta.";
             Console.WriteLine("Operario no encontrado o contraseña incorrecta");
+
+            // Esperar 4 segundos y luego ocultar el mensaje de error
+            await Task.Delay(4000);
+            alertVisible = false;
+            StateHasChanged();
         }
     }
 }

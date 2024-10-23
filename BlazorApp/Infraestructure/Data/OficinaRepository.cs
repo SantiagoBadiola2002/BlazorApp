@@ -3,6 +3,7 @@ using BlazorApp.Models;
 using BlazorApp.Models.DTs;
 using BlazorApp.Models.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using BlazorApp.Components.Pages.Operarios;
 
 namespace BlazorApp.Infraestructure.Data
 {
@@ -139,6 +140,59 @@ namespace BlazorApp.Infraestructure.Data
                 Console.WriteLine("#########################");
             }
         }
+
+        public async Task AtenderCliente(int clienteId, int operarioId, int oficinaId, DateTime fecha, int duracion)
+        {
+            // Buscar la oficina, el cliente, y el operario para asegurarse de que existen
+            var oficina = await _contexto.Oficinas
+                .Include(o => o.Clientes) // Incluimos los clientes
+                .Include(o => o.Operarios) // Incluimos los operarios
+                .FirstOrDefaultAsync(o => o.Id == oficinaId);
+
+            if (oficina == null)
+            {
+                // Si la oficina no existe, lanzar una excepción o manejar el error de alguna otra manera
+                throw new Exception($"Oficina con ID {oficinaId} no encontrada.");
+            }
+
+            var cliente = oficina.Clientes.FirstOrDefault(c => c.Id == clienteId && c.Estado == EstadoCliente.Esperando);
+            if (cliente == null)
+            {
+                // Si no se encuentra un cliente en estado "Esperando", manejar el error
+                throw new Exception($"Cliente con ID {clienteId} no encontrado o no está en espera.");
+            }
+
+            var operario = oficina.Operarios.FirstOrDefault(o => o.Id == operarioId);
+            if (operario == null)
+            {
+                // Si el operario no existe en la oficina, lanzar una excepción o manejar el error
+                throw new Exception($"Operario con ID {operarioId} no encontrado en la oficina ID {oficinaId}.");
+            }
+
+            // Crear un nuevo registro de atención
+            var atencion = new RegistroDeAtencion
+            {
+                ClienteId = cliente.Id,
+                OperarioId = operario.Id,
+                OficinaId = oficina.Id,
+                Fecha = fecha,
+                DuracionAtencion = duracion
+            };
+
+            // Cambiar el estado del cliente a "Atendido"
+            cliente.Estado = EstadoCliente.Atendido;
+
+            // Agregar el registro de atención al contexto de la base de datos
+            _contexto.RegistrosDeAtencion.Add(atencion);
+
+            // Guardar los cambios en la base de datos
+            await _contexto.SaveChangesAsync();
+
+            Console.WriteLine("### OficinaRepository ###");
+            Console.WriteLine($"Cliente ID: {cliente.Id} atendido por Operario ID: {operario.Id} en la Oficina ID: {oficina.Id}.");
+            Console.WriteLine("#########################");
+        }
+
 
 
     }

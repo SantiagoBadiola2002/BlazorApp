@@ -25,7 +25,7 @@ namespace BlazorApp.Models
         public DateTime Fecha { get; set; }
 
         [Required] // Hace que la duración sea obligatoria
-        public TimeSpan DuracionAtencion { get; set; }
+        public int DuracionAtencion { get; set; }
 
         // Constructor vacío
         public RegistroDeAtencion()
@@ -33,7 +33,7 @@ namespace BlazorApp.Models
         }
 
         // Constructor con parámetros
-        public RegistroDeAtencion(int operarioId, int clienteId, int oficinaId, DateTime fecha, TimeSpan duracionAtencion)
+        public RegistroDeAtencion(int operarioId, int clienteId, int oficinaId, DateTime fecha, int duracionAtencion)
         {
             OperarioId = operarioId;
             ClienteId = clienteId;

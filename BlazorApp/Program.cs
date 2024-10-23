@@ -4,6 +4,7 @@ using BlazorApp.Models;
 using BlazorApp.Models.BaseDeDatos;
 using BlazorApp.Models.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using BlazorApp.Hubs;
 using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -56,5 +57,13 @@ app.UseAntiforgery();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
+/*
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapBlazorHub();
+    endpoints.MapHub<NotificacionesHub>("/atencionHub"); // Añade esta línea para mapear el hub
+    endpoints.MapFallbackToPage("/_Host");
+});
+*/
 
 app.Run();

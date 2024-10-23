@@ -1,0 +1,32 @@
+﻿@page "/"
+@namespace BlazorApp.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BlazorApp</title>
+    <base href="~/" />
+    <link href="css/site.css" rel="stylesheet" />
+    <link href="BlazorApp.styles.css" rel="stylesheet" />
+</head>
+<body>
+
+
+    <script src="_framework/blazor.server.js">
+
+        var connection = new signalR.HubConnectionBuilder().withUrl("/NotificacionesHub").build();
+            connection.start().then(function () {
+                //en este ejemplo no hago nada cuando me conecto
+            }).catch(function (err) {
+                return console.error(err.toString());
+            });
+    
+    </script>
+</body>
+</html>
