@@ -139,5 +139,6 @@ namespace BlazorApp.Infraestructure.Data
                 return new List<DTOperario>();
             }
         }
+
     }
 }

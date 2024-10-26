@@ -6,5 +6,6 @@
         public string Cedula { get; set; } 
         public DateTime FechaRegistro { get; set; } 
         public EstadoCliente Estado { get; set; } // Estado del cliente: Esperando, Procesando, Atendido
+        public string Operario { get; set; }
     }
 }

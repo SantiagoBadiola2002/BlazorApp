@@ -6,6 +6,7 @@ namespace BlazorApp.Models.Interfaces
     {
         Task<DTCliente> ObtenerClientePorIdAsync(int id);
         Task AgregarClienteAsync(DTCliente cliente);
+        Task ActualizarClienteAsync(DTCliente clienteDTO);
         Task<DTCliente> ObtenerClientePorCedulaAsync(string cedula);
         Task<IList<DTCliente>> ObtenerClientesEnEsperaAsync();
         Task ActualizarEstadoClientePorCedulaAsync(string cedula, EstadoCliente nuevoEstado);

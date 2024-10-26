@@ -11,7 +11,8 @@ namespace BlazorApp.Models.Interfaces {
             void ActualizarOficina(Oficina oficina);
             void EliminarOficina(int id);
             Task<List<DTCliente>> ObtenerClientesEnEsperaPorOficinaDTOAsync(int oficinaId);
-            Task RegistrarClienteEnOficinaAsync(int oficinaId, DTCliente nuevoCliente);
+            Task<List<DTCliente>> ObtenerClientesProcesandoPorOficinaDTOAsync(int oficinaId);
+        Task RegistrarClienteEnOficinaAsync(int oficinaId, DTCliente nuevoCliente);
             Task AtenderCliente(int clienteId, int operarioId, int oficinaId, DateTime fecha, int Duracion);
             //DTAdministrador ObtenerAdministradorPorIdDTO(int id);
             //DTGerenteCalidad ObtenerGerenteCalidadPorIdDTO(int id);

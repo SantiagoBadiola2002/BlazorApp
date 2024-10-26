@@ -9,51 +9,109 @@
 @inject IClienteRepository ClienteRepository
 @inject NavigationManager NavigationManager
 @inject IHubContext<BlazorApp.Hubs.NotificacionesHub> HubContext; // Inyectar el HubContext para enviar mensajes si es necesario
+@inject NotificationService NotificationService
 
 <h1>Sala De Espera</h1>
 <h2>Oficina @nombreOficina</h2>
 
-@if (mostrarMensaje)
-{
-    <div class="notification">@mensajeNotificacion</div>
-}
+<!-- RadzenRow para mostrar las listas lado a lado -->
+<RadzenRow Gap="1rem">
 
-<!-- RadzenStack para agrupar los elementos verticalmente -->
-<RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" Gap="0.5rem" class="rz-p-2">
-    <!-- Mostrar mensaje si no se encuentran clientes en espera -->
-    @if (clientesEnEspera == null || clientesEnEspera.Count == 0)
-    {
-        <p>No hay clientes en espera para la oficina seleccionada.</p>
-    }
-    else
-    {
-        <!-- Lista de clientes -->
-        <RadzenDataList AllowVirtualization="@allowVirtualization"
-                        Style="@(allowVirtualization ? "height:400px;overflow:auto;" : "")"
-                        WrapItems="@(!allowVirtualization)" AllowPaging="@(!allowVirtualization)"
-                        Data="@clientesEnEspera" TItem="DTCliente" PageSize="5" ShowPagingSummary="true">
-            <Template Context="cliente">
-                <RadzenCard Variant="Variant.Outlined" class="rz-p-0" Style="width: 100%; overflow: hidden;">
-                    <RadzenRow Gap="0">
-                        <RadzenColumn Size="12" SizeLG="4" class="rz-p-4 product-title">
-                            <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" class="rz-color-on-secondary-lighter">Cliente Cédula: @(cliente.Cedula)</RadzenText>
-                        </RadzenColumn>
-                        <RadzenColumn Size="12" SizeLG="4" class="rz-p-4">
+    <!-- Columna de Clientes en Espera -->
+    <RadzenColumn Size="6">
+        <h3>Clientes en Espera</h3>
+        <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" Gap="0.5rem" class="rz-p-2">
+            @if (clientesEnEspera == null || clientesEnEspera.Count == 0)
+            {
+                <p>No hay clientes en espera para la oficina seleccionada.</p>
+            }
+            else
+            {
+                <!-- Lista de clientes en espera -->
+                <RadzenDataList AllowVirtualization="@allowVirtualization"
+                                Style="@(allowVirtualization ? "height:400px;overflow:auto;" : "")"
+                                WrapItems="@(!allowVirtualization)" AllowPaging="@(!allowVirtualization)"
+                                Data="@clientesEnEspera" TItem="DTCliente" PageSize="5" ShowPagingSummary="true">
+                    <Template Context="cliente">
+                        <RadzenCard Variant="Variant.Outlined" class="rz-p-0" Style="width: 100%; overflow: hidden; background-color: #45dddd;">
                             <RadzenRow Gap="0">
-                                <RadzenColumn Size="12">
-                                    <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" class="rz-mb-0">Fecha Registro</RadzenText>
-                                    <RadzenText TextStyle="TextStyle.Body2">@(cliente.FechaRegistro.ToString("yyyy-MM-dd"))</RadzenText>
+                                <RadzenColumn Size="12" SizeLG="4" class="rz-p-4 product-title">
+                                    <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" class="rz-color-on-secondary-lighter">Cliente Cédula: @(cliente.Cedula)</RadzenText>
                                 </RadzenColumn>
-                                <RadzenColumn Size="12">
-                                    <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" class="rz-mb-0">Estado</RadzenText>
-                                    <RadzenText TextStyle="TextStyle.Body2">@cliente.Estado.ToString()</RadzenText>
+                                <RadzenColumn Size="12" SizeLG="4" class="rz-p-4">
+                                    <RadzenRow Gap="0">
+                                        <RadzenColumn Size="12">
+                                            <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" class="rz-mb-0">Fecha Registro</RadzenText>
+                                            <RadzenText TextStyle="TextStyle.Body2">@(cliente.FechaRegistro.ToString("yyyy-MM-dd"))</RadzenText>
+                                        </RadzenColumn>
+                                        <RadzenColumn Size="12">
+                                            <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" class="rz-mb-0">Estado</RadzenText>
+                                            <RadzenText TextStyle="TextStyle.Body2">@cliente.Estado.ToString()</RadzenText>
+                                        </RadzenColumn>
+                                    </RadzenRow>
                                 </RadzenColumn>
                             </RadzenRow>
-                        </RadzenColumn>
-                    </RadzenRow>
-                </RadzenCard>
-            </Template>
-        </RadzenDataList>
+                        </RadzenCard>
+                    </Template>
+                </RadzenDataList>
+            }
+        </RadzenStack>
+    </RadzenColumn>
+
+    <!-- Columna de Clientes Procesando -->
+    <RadzenColumn Size="6">
+        <h3>Llamados</h3>
+        <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" Gap="0.5rem" class="rz-p-2">
+            @if (clientesProcesando == null || clientesProcesando.Count == 0)
+            {
+                <p>No hay clientes siendo procesados en este momento.</p>
+            }
+            else
+            {
+                <!-- Lista de clientes procesando -->
+                <RadzenDataList AllowVirtualization="@allowVirtualization"
+                                Style="@(allowVirtualization ? "height:400px;overflow:auto;" : "")"
+                                WrapItems="@(!allowVirtualization)" AllowPaging="@(!allowVirtualization)"
+                                Data="@clientesProcesando" TItem="DTCliente" PageSize="5" ShowPagingSummary="true">
+                    <Template Context="cliente">
+                        <RadzenCard Variant="Variant.Outlined" class="rz-p-0" Style="width: 100%; overflow: hidden; background-color: #FFCC00;">
+                            <RadzenRow Gap="0">
+                                <RadzenColumn Size="12" SizeLG="4" class="rz-p-4 product-title">
+                                    <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" class="rz-color-on-secondary-lighter">Cliente Cédula: @(cliente.Cedula)</RadzenText>
+                                </RadzenColumn>
+                                <RadzenColumn Size="12" SizeLG="4" class="rz-p-4">
+                                    <RadzenRow Gap="0">
+                                        <RadzenColumn Size="12">
+                                            <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" class="rz-mb-0">Fecha Registro</RadzenText>
+                                            <RadzenText TextStyle="TextStyle.Body2">@(cliente.FechaRegistro.ToString("yyyy-MM-dd"))</RadzenText>
+                                        </RadzenColumn>
+                                        <RadzenColumn Size="12">
+                                            <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" class="rz-mb-0">Estado</RadzenText>
+                                            <RadzenText TextStyle="TextStyle.Body2">@cliente.Estado.ToString()</RadzenText>
+                                        </RadzenColumn>
+                                        <RadzenColumn Size="12">
+                                            <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" class="rz-mb-0">Operario</RadzenText>
+                                            <RadzenText TextStyle="TextStyle.Body2">@cliente.Operario</RadzenText>
+                                        </RadzenColumn>
+                                    </RadzenRow>
+                                </RadzenColumn>
+                            </RadzenRow>
+                        </RadzenCard>
+                    </Template>
+                </RadzenDataList>
+            }
+        </RadzenStack>
+    </RadzenColumn>
+
+</RadzenRow>
+
+<!-- Alerta Radzen para notificar al cliente -->
+<RadzenStack Gap="0" class="rz-py-8 rz-px-12">
+    @if (mostrarMensaje)
+    {
+        <RadzenAlert AllowClose="true" AlertStyle="AlertStyle.Success" Variant="Variant.Flat" Shade="Shade.Lighter" Close="@OnClose">
+            @mensajeNotificacion
+        </RadzenAlert>
     }
 </RadzenStack>
 
@@ -61,6 +119,7 @@
     private int oficinaId = 0; // Inicializa a 0 para representar "no seleccionado"
     private string nombreOficina = null;
     private List<DTCliente> clientesEnEspera = new List<DTCliente>();
+    private List<DTCliente> clientesProcesando = new List<DTCliente>();
     private bool allowVirtualization = false; // Control para virtualización
 
     // Para la notificación temporal
@@ -69,28 +128,36 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Obtener el parámetro de consulta "oficinaId"
         var uri = new Uri(NavigationManager.Uri);
         var queryParams = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
 
         if (queryParams.TryGetValue("oficinaId", out var oficinaIdValue) && int.TryParse(oficinaIdValue, out oficinaId))
         {
             await CargarClientesEnEspera();
+            await CargarClientesProcesando();
         }
 
-        // Aquí aún necesitas configurar una conexión cliente para escuchar notificaciones en la sala de espera
         var hubConnection = new HubConnectionBuilder()
             .WithUrl(NavigationManager.ToAbsoluteUri("/notificacionesHub"))
             .Build();
 
-        hubConnection.On<int>("LlamandoCliente", async (clienteId) =>
+        hubConnection.On<int, string>("LlamandoCliente", async (clienteId, operario) =>
         {
-            // Busca el cliente en la lista para identificarlo
             var clienteLlamado = clientesEnEspera.FirstOrDefault(c => c.Id == clienteId);
             if (clienteLlamado != null)
             {
-                ClienteRepository.ActualizarEstadoClientePorIdAsync(clienteId, Models.EstadoCliente.Procesando);
-                mensajeNotificacion = $"El operario está llamando al cliente con cédula {clienteLlamado.Cedula}.";
+                // Remover de la lista de espera y asignar operario
+                clientesEnEspera.Remove(clienteLlamado);
+                clienteLlamado.Operario = operario;
+                clienteLlamado.Estado = Models.EstadoCliente.Procesando;
+
+                // Añadir a la lista de clientes procesando
+                clientesProcesando.Add(clienteLlamado);
+
+                await ClienteRepository.ActualizarEstadoClientePorIdAsync(clienteId, Models.EstadoCliente.Procesando);
+
+                // Notificación del operario llamando
+                mensajeNotificacion = $"El operario {operario} está llamando al cliente con cédula {clienteLlamado.Cedula}.";
                 mostrarMensaje = true;
                 await InvokeAsync(StateHasChanged);
 
@@ -98,13 +165,7 @@
                 await Task.Delay(5000);
                 mostrarMensaje = false;
                 await InvokeAsync(StateHasChanged);
-
-                await Task.Delay(5000);
-
-                // Refrescar la página después de 10 segundos
-                NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
             }
-            
         });
 
         await hubConnection.StartAsync();
@@ -114,10 +175,8 @@
     {
         if (oficinaId > 0)
         {
-            // Obtener los clientes en espera como DTOs
             clientesEnEspera = await OficinaRepository.ObtenerClientesEnEsperaPorOficinaDTOAsync(oficinaId);
 
-            // Obtener nombre de la oficina usando el método DTO
             var oficinaDTO = OficinaRepository.ObtenerOficinaPorIdDTO(oficinaId);
             nombreOficina = oficinaDTO?.Nombre;
         }
@@ -127,9 +186,24 @@
         }
     }
 
-    public async Task NotificarDesdeSala(int clienteId)
+    private async Task CargarClientesProcesando()
     {
-        // Si necesitas notificar desde la sala de espera, puedes hacerlo usando el HubContext
-        await HubContext.Clients.All.SendAsync("LlamandoCliente", clienteId);
+        if (oficinaId > 0)
+        {
+            clientesProcesando = await OficinaRepository.ObtenerClientesProcesandoPorOficinaDTOAsync(oficinaId);
+
+            var oficinaDTO = OficinaRepository.ObtenerOficinaPorIdDTO(oficinaId);
+            nombreOficina = oficinaDTO?.Nombre;
+        }
+        else
+        {
+            clientesProcesando.Clear();
+        }
+    }
+
+    void OnClose()
+    {
+        NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Notificación cerrada", Detail = "El mensaje ha sido cerrado" });
+        mostrarMensaje = false; // Asegurarse de que el mensaje se oculte cuando se cierra la alerta
     }
 }

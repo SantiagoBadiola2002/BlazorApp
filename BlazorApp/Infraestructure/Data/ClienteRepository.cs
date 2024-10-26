@@ -119,5 +119,35 @@ namespace BlazorApp.Infraestructure.Data
                 Console.WriteLine($"Error al actualizar el estado del cliente por Id: {ex.Message}");
             }
         }
+
+        public async Task ActualizarClienteAsync(DTCliente clienteDTO)
+        {
+            try
+            {
+                // Buscar el cliente en la base de datos
+                var clienteExistente = await _context.Clientes.FirstOrDefaultAsync(c => c.Id == clienteDTO.Id);
+
+                if (clienteExistente != null)
+                {
+                    // Actualizar las propiedades del cliente
+                    clienteExistente.Cedula = clienteDTO.Cedula;
+                    clienteExistente.FechaRegistro = clienteDTO.FechaRegistro;
+                    clienteExistente.Estado = clienteDTO.Estado;
+
+                    // Guardar los cambios en la base de datos
+                    _context.Clientes.Update(clienteExistente);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    Console.WriteLine($"Cliente con ID {clienteDTO.Id} no encontrado.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al actualizar el cliente: {ex.Message}");
+            }
+        }
+
     }
 }

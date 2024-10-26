@@ -59,6 +59,24 @@ namespace BlazorApp.Infraestructure.Data
                 .ToList();
         }
 
+        public async Task<List<DTCliente>> ObtenerClientesProcesandoPorOficinaDTOAsync(int oficinaId)
+        {
+            var oficina = await _contexto.Oficinas
+                .Include(o => o.Clientes)
+                .FirstOrDefaultAsync(o => o.Id == oficinaId);
+
+            if (oficina == null)
+            {
+                return new List<DTCliente>();
+            }
+
+            return oficina.Clientes
+                .Where(c => c.Estado == EstadoCliente.Procesando)
+                .OrderBy(c => c.FechaRegistro)
+                .Select(DTsMapped.ConvertirAClienteDTO)
+                .ToList();
+        }
+
         public void AgregarOficina(Oficina oficina)
         {
             _contexto.Oficinas.Add(oficina);
