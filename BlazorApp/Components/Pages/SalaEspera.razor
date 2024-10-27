@@ -141,35 +141,38 @@
             .WithUrl(NavigationManager.ToAbsoluteUri("/notificacionesHub"))
             .Build();
 
-        hubConnection.On<int, string>("LlamandoCliente", async (clienteId, operario) =>
+        // Escuchar el evento "LlamandoCliente"
+        hubConnection.On<int, string>("LlamandoCliente", async (clienteId, nombreOperario) =>
         {
             var clienteLlamado = clientesEnEspera.FirstOrDefault(c => c.Id == clienteId);
             if (clienteLlamado != null)
             {
-                // Remover de la lista de espera y asignar operario
                 clientesEnEspera.Remove(clienteLlamado);
-                clienteLlamado.Operario = operario;
+                clienteLlamado.Operario = nombreOperario;
                 clienteLlamado.Estado = Models.EstadoCliente.Procesando;
-
-                // Añadir a la lista de clientes procesando
                 clientesProcesando.Add(clienteLlamado);
 
                 await ClienteRepository.ActualizarEstadoClientePorIdAsync(clienteId, Models.EstadoCliente.Procesando);
 
-                // Notificación del operario llamando
-                mensajeNotificacion = $"El operario {operario} está llamando al cliente con cédula {clienteLlamado.Cedula}.";
+                mensajeNotificacion = $"El operario {nombreOperario} está llamando al cliente con cédula {clienteLlamado.Cedula}.";
                 mostrarMensaje = true;
                 await InvokeAsync(StateHasChanged);
 
-                // Ocultar el mensaje después de 5 segundos
                 await Task.Delay(5000);
                 mostrarMensaje = false;
                 await InvokeAsync(StateHasChanged);
             }
         });
 
+        hubConnection.On("RefrescarPagina", async () =>
+    {
+        await Task.Delay(100);
+        NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+    });
+
         await hubConnection.StartAsync();
     }
+
 
     private async Task CargarClientesEnEspera()
     {

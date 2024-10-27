@@ -46,6 +46,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await HubContext.Clients.All.SendAsync("RefrescarPaginaAtencionCliente"); 
+
         atencionCliente.ClienteId = clienteId;
         atencionCliente.OperarioId = operarioId;
         atencionCliente.OficinaId = oficinaId;
@@ -59,15 +61,19 @@
         await OficinaRepository.AtenderCliente(clienteId, operarioId, oficinaId, atencionCliente.Fecha, atencionCliente.Duracion);
         Console.WriteLine("Atención cliente guardada");
 
-        // Notificar a la sala de espera que el cliente fue atendido
-        //await HubContext.Clients.All.SendAsync("ClienteAtendido", clienteId);
+        // Notificar a todos los clientes para que refresquen la página
+        await HubContext.Clients.All.SendAsync("RefrescarPagina");
 
         NavigationManager.NavigateTo($"/AtencionAlCliente?oficinaId={oficinaId}&operarioId={operarioId}");
     }
 
-    private void Cancelar()
+    private async Task Cancelar()
     {
         ClienteRepository.ActualizarEstadoClientePorIdAsync(clienteId, Models.EstadoCliente.Atendido);
+
+        // Notificar a todos los clientes para que refresquen la página
+        await HubContext.Clients.All.SendAsync("RefrescarPagina");
+
         NavigationManager.NavigateTo($"/AtencionAlCliente?oficinaId={oficinaId}&operarioId={operarioId}");
     }
 }

@@ -173,11 +173,12 @@ namespace BlazorApp.Infraestructure.Data
                 throw new Exception($"Oficina con ID {oficinaId} no encontrada.");
             }
 
-            var cliente = oficina.Clientes.FirstOrDefault(c => c.Id == clienteId && c.Estado == EstadoCliente.Esperando);
+            // Buscar el cliente sin filtrar por el estado "Esperando"
+            var cliente = oficina.Clientes.FirstOrDefault(c => c.Id == clienteId);
             if (cliente == null)
             {
-                // Si no se encuentra un cliente en estado "Esperando", manejar el error
-                throw new Exception($"Cliente con ID {clienteId} no encontrado o no está en espera.");
+                // Si el cliente no se encuentra, manejar el error
+                throw new Exception($"Cliente con ID {clienteId} no encontrado en la oficina ID {oficinaId}.");
             }
 
             var operario = oficina.Operarios.FirstOrDefault(o => o.Id == operarioId);
@@ -210,6 +211,7 @@ namespace BlazorApp.Infraestructure.Data
             Console.WriteLine($"Cliente ID: {cliente.Id} atendido por Operario ID: {operario.Id} en la Oficina ID: {oficina.Id}.");
             Console.WriteLine("#########################");
         }
+
 
 
 
