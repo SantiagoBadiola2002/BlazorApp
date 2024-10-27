@@ -1,0 +1,68 @@
+﻿@page "/operarios/delete"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using BlazorApp.Models
+@inject IDbContextFactory<BlazorApp.Models.BaseDeDatos.ContextoBD> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Delete</PageTitle>
+
+<h1>Delete</h1>
+
+<p>Are you sure you want to delete this?</p>
+<div>
+    <h2>Operario</h2>
+    <hr />
+    @if (operario is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Nombre</dt>
+            <dd class="col-sm-10">@operario.Nombre</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">EstaDisponible</dt>
+            <dd class="col-sm-10">@operario.EstaDisponible</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">OficinaId</dt>
+            <dd class="col-sm-10">@operario.OficinaId</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Contraseña</dt>
+            <dd class="col-sm-10">@operario.Contraseña</dd>
+        </dl>
+        <EditForm method="post" Model="operario" OnValidSubmit="DeleteOperario" FormName="delete" Enhance>
+            <button type="submit" class="btn btn-danger" disabled="@(operario is null)">Delete</button> |
+            <a href="/operarios">Back to List</a>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private Operario? operario;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        operario = await context.Operarios.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (operario is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    private async Task DeleteOperario()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Operarios.Remove(operario!);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/operarios");
+    }
+}

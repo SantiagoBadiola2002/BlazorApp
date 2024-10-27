@@ -1,0 +1,45 @@
+﻿@page "/oficinas"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using BlazorApp.Models
+@using BlazorApp.Models.BaseDeDatos
+@implements IAsyncDisposable
+@inject IDbContextFactory<BlazorApp.Models.BaseDeDatos.ContextoBD> DbFactory
+<link href="css/estiloTabla.css" rel="stylesheet" />
+
+<PageTitle>Administración Oficinas</PageTitle>
+
+<h1 style="text-align:center">Administración Oficinas</h1>
+
+<RadzenStack AlignItems="AlignItems.Center" class="rz-mx-auto rz-my-12">
+
+    <RadzenImage Path="../images/utecLogo.png" Style="width: 15rem;" AlternateText="community" />
+
+</RadzenStack>
+
+<p>
+    <a href="oficinas/create">Nueva Oficina</a>
+</p>
+
+<QuickGrid Class="styled-table" Items="context.Oficinas">
+    <PropertyColumn Property="oficina => oficina.Nombre" Title="Nombre de Oficina" />
+
+    <TemplateColumn Context="oficina">
+        <a href="@($"oficinas/edit?id={oficina.Id}")">Edit</a> |
+        <a href="@($"oficinas/details?id={oficina.Id}")">Details</a> |
+        <a href="@($"oficinas/delete?id={oficina.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+
+@code {
+    private ContextoBD context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

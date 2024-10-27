@@ -1,0 +1,53 @@
+﻿@page "/operarios/details"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using BlazorApp.Models
+@inject IDbContextFactory<BlazorApp.Models.BaseDeDatos.ContextoBD> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Operario</h2>
+    <hr />
+    @if (operario is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Nombre</dt>
+            <dd class="col-sm-10">@operario.Nombre</dd>
+            <dt class="col-sm-2">EstaDisponible</dt>
+            <dd class="col-sm-10">@operario.EstaDisponible</dd>
+            <dt class="col-sm-2">OficinaId</dt>
+            <dd class="col-sm-10">@operario.OficinaId</dd>
+            <dt class="col-sm-2">Contraseña</dt>
+            <dd class="col-sm-10">@operario.Contraseña</dd>
+        </dl>
+        <div>
+            <a href="@($"/operarios/edit?id={operario.Id}")">Edit</a> |
+            <a href="@($"/operarios")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Operario? operario;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        operario = await context.Operarios.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (operario is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

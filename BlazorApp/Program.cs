@@ -24,6 +24,13 @@ builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 builder.Services.AddScoped<IOperarioRepository, OperarioRepository>();
 
 
+// Registro de DbContextFactory para el ContextoBD
+builder.Services.AddDbContextFactory<ContextoBD>(options =>
+{
+    options.UseMySQL(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+
+// Agregar DbContext normal si es necesario
 builder.Services.AddDbContext<ContextoBD>(options =>
 {
     options.UseMySQL(builder.Configuration.GetConnectionString("DefaultConnection"));

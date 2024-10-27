@@ -1,0 +1,87 @@
+﻿@page "/operarios/create"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using BlazorApp.Models
+@inject IDbContextFactory<BlazorApp.Models.BaseDeDatos.ContextoBD> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Operario</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Operario" OnValidSubmit="AddOperario" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+            <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre:</label>
+                <InputText id="nombre" @bind-Value="Operario.Nombre" class="form-control" />
+                <ValidationMessage For="() => Operario.Nombre" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label for="estadisponible" class="form-label">EstaDisponible:</label>
+                <InputCheckbox id="estadisponible" @bind-Value="Operario.EstaDisponible" class="form-check-input" />
+                <ValidationMessage For="() => Operario.EstaDisponible" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label for="oficinaid" class="form-label">Oficina:</label>
+                <InputSelect id="oficinaid" @bind-Value="Operario.OficinaId" class="form-control">
+                    <option value="">Selecciona una oficina</option>
+                    @if (Oficinas != null)
+                    {
+                        @foreach (var oficina in Oficinas)
+                        {
+                            <option value="@oficina.Id">@oficina.Nombre</option>
+                        }
+                    }
+                </InputSelect>
+                <ValidationMessage For="() => Operario.OficinaId" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label for="contraseña" class="form-label">Contraseña:</label>
+                <InputText id="contraseña" @bind-Value="Operario.Contraseña" class="form-control" />
+                <ValidationMessage For="() => Operario.Contraseña" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label for="roloperario" class="form-label">Rol Operario:</label>
+                <InputSelect id="roloperario" @bind-Value="Operario.RolOperario" class="form-control">
+                    <option value="@Rol.Operario">Operario</option>
+                    <option value="@Rol.GerenteDeCalidad">Gerente de Calidad</option>
+                    <option value="@Rol.Administrador">Administrador</option>
+                </InputSelect>
+                <ValidationMessage For="() => Operario.RolOperario" class="text-danger" />
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/operarios">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Operario Operario { get; set; } = new();
+
+    // Lista de oficinas para el select
+    private List<Oficina> Oficinas { get; set; } = new();
+
+    // Método para cargar las oficinas desde la base de datos
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Oficinas = await context.Oficinas.ToListAsync();
+    }
+
+    private async Task AddOperario()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Operarios.Add(Operario);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/operarios");
+    }
+}

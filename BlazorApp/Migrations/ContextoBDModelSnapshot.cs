@@ -19,22 +19,6 @@ namespace BlazorApp.Migrations
                 .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            modelBuilder.Entity("BlazorApp.Models.Administrador", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("varchar(30)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Administradores");
-                });
-
             modelBuilder.Entity("BlazorApp.Models.Cliente", b =>
                 {
                     b.Property<int>("Id")
@@ -60,22 +44,6 @@ namespace BlazorApp.Migrations
                     b.HasIndex("OficinaId");
 
                     b.ToTable("Clientes");
-                });
-
-            modelBuilder.Entity("BlazorApp.Models.GerenteCalidad", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("varchar(30)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("GerentesCalidad");
                 });
 
             modelBuilder.Entity("BlazorApp.Models.Oficina", b =>
@@ -114,6 +82,9 @@ namespace BlazorApp.Migrations
                         .HasColumnType("varchar(30)");
 
                     b.Property<int>("OficinaId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RolOperario")
                         .HasColumnType("int");
 
                     b.HasKey("Id");

@@ -25,6 +25,7 @@ namespace BlazorApp.Models
                 Nombre = operario.Nombre,
                 EstaDisponible = operario.EstaDisponible,
                 OficinaId = operario.OficinaId,
+                RolOperario = operario.RolOperario,
                 Contraseña = operario.Contraseña,
             };
         }
@@ -41,24 +42,5 @@ namespace BlazorApp.Models
             };
         }
 
-        // Mapeo de Administrador a DTAdministrador
-        public static DTAdministrador ConvertirAAdministradorDTO(Administrador administrador)
-        {
-            return new DTAdministrador
-            {
-                Id = administrador.Id,
-                Nombre = administrador.Nombre
-            };
-        }
-
-        // Mapeo de Gerente de Calidad a DTGerenteCalidad
-        public static DTGerenteCalidad ConvertirAGerenteCalidadDTO(GerenteCalidad gerenteCalidad)
-        {
-            return new DTGerenteCalidad
-            {
-                Id = gerenteCalidad.Id,
-                Nombre = gerenteCalidad.Nombre
-            };
-        }
     }
 }

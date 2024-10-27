@@ -1,0 +1,47 @@
+﻿@page "/oficinas/details"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using BlazorApp.Models
+@inject IDbContextFactory<BlazorApp.Models.BaseDeDatos.ContextoBD> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Oficina</h2>
+    <hr />
+    @if (oficina is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Nombre</dt>
+            <dd class="col-sm-10">@oficina.Nombre</dd>
+        </dl>
+        <div>
+            <a href="@($"/oficinas/edit?id={oficina.Id}")">Edit</a> |
+            <a href="@($"/oficinas")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Oficina? oficina;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        oficina = await context.Oficinas.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (oficina is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

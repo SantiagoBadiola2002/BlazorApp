@@ -1,0 +1,53 @@
+﻿@page "/operarios"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using BlazorApp.Models
+@using BlazorApp.Models.BaseDeDatos
+@implements IAsyncDisposable
+@inject IDbContextFactory<BlazorApp.Models.BaseDeDatos.ContextoBD> DbFactory
+<link href="css/estiloTabla.css" rel="stylesheet" />
+
+<PageTitle>Administración Operarios</PageTitle>
+
+<h1 style="text-align:center">Administración Operarios</h1>
+
+<RadzenStack AlignItems="AlignItems.Center" class="rz-mx-auto rz-my-12">
+
+    <RadzenImage Path="../images/utecLogo.png" Style="width: 15rem;" AlternateText="community" />
+
+</RadzenStack>
+
+<p>
+    <a href="operarios/create">Nuevo Operario</a>
+</p>
+
+<QuickGrid Class="styled-table" Items="context.Operarios">
+    <PropertyColumn Property="operario => operario.Nombre" Title="Nombre" />
+    <PropertyColumn Property="operario => operario.EstaDisponible" Title="Disponible" />
+    <PropertyColumn Property="operario => operario.OficinaId" Title="Oficina ID" />
+    <PropertyColumn Property="operario => operario.RolOperario" Title="Rol" />
+
+    <!-- Columna personalizada para ocultar la contraseña -->
+    <TemplateColumn Title="Contraseña" Context="operario">
+        ******
+    </TemplateColumn>
+
+    <TemplateColumn Context="operario">
+        <a href="@($"operarios/edit?id={operario.Id}")">Edit</a> |
+        <a href="@($"operarios/details?id={operario.Id}")">Details</a> |
+        <a href="@($"operarios/delete?id={operario.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+
+@code {
+    private ContextoBD context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

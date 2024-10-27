@@ -24,15 +24,21 @@ namespace BlazorApp.Models
         [DataType(DataType.Password)]
         public string Contraseña { get; set; }
 
+        [Required]
+        [EnumDataType(typeof(Rol), ErrorMessage = "Estado inválido.")]
+        [Display(Name = "Rol del usuario")]
+        public Rol RolOperario { get; set; } //0:Operario, 1:GerenteDeCalidad, 2:Administrador
+
         public Operario() { }
 
-        public Operario(int id, string nombre, bool estaDisponible, int oficinaId, string contraseña)
+        public Operario(int id, string nombre, bool estaDisponible, int oficinaId, string contraseña, Rol rolOperario)
         {
             Id = id;
             Nombre = nombre;
             EstaDisponible = estaDisponible;
             OficinaId = oficinaId;
             Contraseña = contraseña;
+            RolOperario = rolOperario;
         }
 
         public void AtenderCliente(Cliente cliente)

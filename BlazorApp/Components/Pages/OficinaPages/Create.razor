@@ -1,0 +1,45 @@
+﻿@page "/oficinas/create"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using BlazorApp.Models
+@inject IDbContextFactory<BlazorApp.Models.BaseDeDatos.ContextoBD> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Oficina</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Oficina" OnValidSubmit="AddOficina" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+            <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre:</label> 
+                <InputText id="nombre" @bind-Value="Oficina.Nombre" class="form-control" /> 
+                <ValidationMessage For="() => Oficina.Nombre" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/oficinas">Back to List</a>
+</div>
+
+@code {
+    
+    private Oficina Oficina { get; set; } = new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddOficina()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Oficinas.Add(Oficina);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/oficinas");
+    }
+}

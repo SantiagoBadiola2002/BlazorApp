@@ -1,0 +1,130 @@
+﻿@page "/operarios/edit"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using BlazorApp.Models
+@inject IDbContextFactory<BlazorApp.Models.BaseDeDatos.ContextoBD> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>Operario</h2>
+<hr />
+@if (Operario is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Operario" OnValidSubmit="UpdateOperario" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <input type="hidden" name="Operario.Id" value="@Operario.Id" />
+                <div class="mb-3">
+                    <label for="nombre" class="form-label">Nombre:</label>
+                    <InputText id="nombre" @bind-Value="Operario.Nombre" class="form-control" />
+                    <ValidationMessage For="() => Operario.Nombre" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="estadisponible" class="form-label">EstaDisponible:</label>
+                    <InputCheckbox id="estadisponible" @bind-Value="Operario.EstaDisponible" class="form-check-input" />
+                    <ValidationMessage For="() => Operario.EstaDisponible" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="oficinaid" class="form-label">Oficina:</label>
+                    <InputSelect id="oficinaid" @bind-Value="Operario.OficinaId" class="form-control">
+                        <option value="">Selecciona una oficina</option>
+                        @if (Oficinas != null)
+                        {
+                            @foreach (var oficina in Oficinas)
+                            {
+                                <option value="@oficina.Id">@oficina.Nombre</option>
+                            }
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="() => Operario.OficinaId" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="contraseña" class="form-label">Contraseña:</label>
+                    <InputText id="contraseña" @bind-Value="Operario.Contraseña" class="form-control" />
+                    <ValidationMessage For="() => Operario.Contraseña" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="roloperario" class="form-label">Rol Operario:</label>
+                    <InputSelect id="roloperario" @bind-Value="Operario.RolOperario" class="form-control">
+                        <option value="@Rol.Operario">Operario</option>
+                        <option value="@Rol.GerenteDeCalidad">Gerente de Calidad</option>
+                        <option value="@Rol.Administrador">Administrador</option>
+                    </InputSelect>
+                    <ValidationMessage For="() => Operario.RolOperario" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/operarios">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    private Operario? Operario { get; set; }
+
+    private List<Oficina> Oficinas { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        
+        // Cargar el operario específico
+        Operario ??= await context.Operarios.FirstOrDefaultAsync(m => m.Id == Id);
+
+        // Redirigir si no se encuentra el operario
+        if (Operario is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+            return;
+        }
+
+        // Cargar la lista de oficinas
+        Oficinas = await context.Oficinas.ToListAsync();
+    }
+
+    private async Task UpdateOperario()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Operario!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!OperarioExists(Operario!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/operarios");
+    }
+
+    private bool OperarioExists(int id)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Operarios.Any(e => e.Id == id);
+    }
+}

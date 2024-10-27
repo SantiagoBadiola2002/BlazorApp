@@ -5,23 +5,21 @@
 
 @inject IOficinaRepository OficinaRepository
 
-<h3>Lista de Oficinas</h3>
+<PageTitle>Administración de Oficinas</PageTitle>
 
-@if (oficinas != null && oficinas.Any())
-{
-   
-}
-else
-{
-    <p>No hay oficinas disponibles.</p>
-}
+<h1 style="text-align:center">Administración de Oficinas</h1>
+
+<RadzenStack AlignItems="AlignItems.Center" class="rz-mx-auto rz-my-12">
+
+    <RadzenImage Path="../images/utecLogo.png" Style="width: 15rem;" AlternateText="community" />
+
+</RadzenStack>
 
 @code {
     private List<DTOficina> oficinas;
 
     protected override async Task OnInitializedAsync()
     {
-        // Cargar todas las oficinas de manera asíncrona
-        oficinas = await OficinaRepository.ObtenerTodasLasOficinasDTOAsync();
+       
     }
 }

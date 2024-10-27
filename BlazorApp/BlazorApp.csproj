@@ -30,6 +30,7 @@
 
   <ItemGroup>
     <Folder Include="Components\Pages\autoGenerado\" />
+    <Folder Include="Components\Pages\Administrador\" />
     <Folder Include="Shared\" />
     <Folder Include="Services\" />
   </ItemGroup>
@@ -46,6 +47,7 @@
   <ItemGroup>
     <None Include="Components\Pages\InfoOficinas.razor" />
     <None Include="Components\Pages\redirecciones\SelectOficinaRegistrarClientes.razor" />
+    <None Include="wwwroot\images\utecLogo.png" />
   </ItemGroup>
 
   <ItemGroup>
