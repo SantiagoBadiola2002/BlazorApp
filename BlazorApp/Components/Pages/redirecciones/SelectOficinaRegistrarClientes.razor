@@ -28,7 +28,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        oficinas = await OficinaRepository.ObtenerTodasLasOficinasDTOAsync();
+        oficinas =  OficinaRepository.ObtenerTodasLasOficinasDTO();
     }
 
     private void Continuar()

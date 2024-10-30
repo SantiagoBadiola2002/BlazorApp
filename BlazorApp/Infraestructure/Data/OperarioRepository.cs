@@ -1,11 +1,10 @@
 ﻿using BlazorApp.Models;
 using BlazorApp.Models.Interfaces;
 using BlazorApp.Models.BaseDeDatos;
-using Microsoft.EntityFrameworkCore;
 using BlazorApp.Models.DTs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace BlazorApp.Infraestructure.Data
 {
@@ -18,11 +17,11 @@ namespace BlazorApp.Infraestructure.Data
             _context = context;
         }
 
-        public async Task<DTOperario> GetOperarioByIdAsync(int id)
+        public DTOperario GetOperarioById(int id)
         {
             try
             {
-                var operario = await _context.Operarios.FirstOrDefaultAsync(o => o.Id == id);
+                var operario = _context.Operarios.FirstOrDefault(o => o.Id == id);
                 return operario != null ? DTsMapped.ConvertirAOperarioDTO(operario) : null;
             }
             catch (Exception ex)
@@ -32,11 +31,11 @@ namespace BlazorApp.Infraestructure.Data
             }
         }
 
-        public async Task<IList<DTOperario>> GetAllOperariosAsync()
+        public IList<DTOperario> GetAllOperarios()
         {
             try
             {
-                var operarios = await _context.Operarios.ToListAsync();
+                var operarios = _context.Operarios.ToList();
                 return operarios.Select(o => DTsMapped.ConvertirAOperarioDTO(o)).ToList();
             }
             catch (Exception ex)
@@ -46,7 +45,7 @@ namespace BlazorApp.Infraestructure.Data
             }
         }
 
-        public async Task AddOperarioAsync(DTOperario operarioDTO)
+        public void AddOperario(DTOperario operarioDTO)
         {
             try
             {
@@ -59,8 +58,8 @@ namespace BlazorApp.Infraestructure.Data
                     Contraseña = operarioDTO.Contraseña // Si este campo está incluido en el DTO
                 };
 
-                await _context.Operarios.AddAsync(operario);
-                await _context.SaveChangesAsync();
+                _context.Operarios.Add(operario);
+                _context.SaveChanges();
             }
             catch (Exception ex)
             {
@@ -68,11 +67,11 @@ namespace BlazorApp.Infraestructure.Data
             }
         }
 
-        public async Task UpdateOperarioAsync(DTOperario operarioDTO)
+        public void UpdateOperario(DTOperario operarioDTO)
         {
             try
             {
-                var existingOperario = await _context.Operarios.FirstOrDefaultAsync(o => o.Id == operarioDTO.Id);
+                var existingOperario = _context.Operarios.FirstOrDefault(o => o.Id == operarioDTO.Id);
                 if (existingOperario != null)
                 {
                     existingOperario.Nombre = operarioDTO.Nombre;
@@ -81,7 +80,7 @@ namespace BlazorApp.Infraestructure.Data
                     existingOperario.Contraseña = operarioDTO.Contraseña; // Actualizamos la contraseña si está en el DTO
 
                     _context.Operarios.Update(existingOperario);
-                    await _context.SaveChangesAsync();
+                    _context.SaveChanges();
                 }
             }
             catch (Exception ex)
@@ -90,15 +89,15 @@ namespace BlazorApp.Infraestructure.Data
             }
         }
 
-        public async Task DeleteOperarioAsync(int id)
+        public void DeleteOperario(int id)
         {
             try
             {
-                var operario = await _context.Operarios.FirstOrDefaultAsync(o => o.Id == id);
+                var operario = _context.Operarios.FirstOrDefault(o => o.Id == id);
                 if (operario != null)
                 {
                     _context.Operarios.Remove(operario);
-                    await _context.SaveChangesAsync();
+                    _context.SaveChanges();
                 }
             }
             catch (Exception ex)
@@ -107,12 +106,12 @@ namespace BlazorApp.Infraestructure.Data
             }
         }
 
-        public async Task<DTOperario> VerificarCredencialesAsync(string nombre, string contraseña)
+        public DTOperario VerificarCredenciales(string nombre, string contraseña)
         {
             try
             {
-                var operario = await _context.Operarios
-                    .FirstOrDefaultAsync(o => o.Nombre == nombre && o.Contraseña == contraseña);
+                var operario = _context.Operarios
+                    .FirstOrDefault(o => o.Nombre == nombre && o.Contraseña == contraseña);
 
                 return operario != null ? DTsMapped.ConvertirAOperarioDTO(operario) : null;
             }
@@ -123,13 +122,13 @@ namespace BlazorApp.Infraestructure.Data
             }
         }
 
-        public async Task<List<DTOperario>> ObtenerOperariosPorOficinaIdAsync(int oficinaId)
+        public List<DTOperario> ObtenerOperariosPorOficinaId(int oficinaId)
         {
             try
             {
-                var operarios = await _context.Operarios
+                var operarios = _context.Operarios
                     .Where(o => o.OficinaId == oficinaId)
-                    .ToListAsync();
+                    .ToList();
 
                 return operarios.Select(o => DTsMapped.ConvertirAOperarioDTO(o)).ToList();
             }
@@ -140,18 +139,16 @@ namespace BlazorApp.Infraestructure.Data
             }
         }
 
-        public async Task<DTOperario> VerificarCredencialesAsync(int idOficina, string nombre, string contraseña, Rol rol)
+        public DTOperario VerificarCredenciales(int idOficina, string nombre, string contraseña, Rol rol)
         {
             try
             {
-                // Filtra por OficinaId, Nombre, Contraseña y Rol
-                var operario = await _context.Operarios
-                    .FirstOrDefaultAsync(o => o.OficinaId == idOficina
-                                              && o.Nombre == nombre
-                                              && o.Contraseña == contraseña
-                                              && o.RolOperario == rol);
+                var operario = _context.Operarios
+                    .FirstOrDefault(o => o.OficinaId == idOficina
+                                          && o.Nombre == nombre
+                                          && o.Contraseña == contraseña
+                                          && o.RolOperario == rol);
 
-                // Si se encuentra el operario, conviértelo a DTO y retorna, de lo contrario retorna null
                 return operario != null ? DTsMapped.ConvertirAOperarioDTO(operario) : null;
             }
             catch (Exception ex)
@@ -160,8 +157,5 @@ namespace BlazorApp.Infraestructure.Data
                 return null;
             }
         }
-
-
-
     }
 }

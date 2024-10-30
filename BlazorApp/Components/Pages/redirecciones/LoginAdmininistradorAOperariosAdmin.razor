@@ -60,7 +60,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        oficinas = await OficinaRepository.ObtenerTodasLasOficinasDTOAsync();
+        oficinas = OficinaRepository.ObtenerTodasLasOficinasDTO();
     }
 
     private async Task OficinaSeleccionada(object args)
@@ -72,7 +72,7 @@
     private async void Redirigir()
     {
         // Llama a la función VerificarCredencialesAsync con rol de Administrador
-        var operario = await OperarioRepository.VerificarCredencialesAsync(selectedOficinaId, operarioNombre, operarioContraseña, Rol.Administrador);
+        var operario =  OperarioRepository.VerificarCredenciales(selectedOficinaId, operarioNombre, operarioContraseña, Rol.Administrador);
 
         if (operario != null)
         {

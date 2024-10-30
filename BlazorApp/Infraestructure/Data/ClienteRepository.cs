@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using BlazorApp.Models.DTs;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace BlazorApp.Infraestructure.Data
 {
@@ -18,11 +17,11 @@ namespace BlazorApp.Infraestructure.Data
             _context = context;
         }
 
-        public async Task<DTCliente> ObtenerClientePorIdAsync(int id)
+        public DTCliente ObtenerClientePorId(int id)
         {
             try
             {
-                var cliente = await _context.Clientes.FirstOrDefaultAsync(c => c.Id == id);
+                var cliente = _context.Clientes.FirstOrDefault(c => c.Id == id);
                 return cliente != null ? DTsMapped.ConvertirAClienteDTO(cliente) : null;
             }
             catch (Exception ex)
@@ -32,7 +31,7 @@ namespace BlazorApp.Infraestructure.Data
             }
         }
 
-        public async Task AgregarClienteAsync(DTCliente clienteDTO)
+        public void AgregarCliente(DTCliente clienteDTO)
         {
             try
             {
@@ -44,8 +43,8 @@ namespace BlazorApp.Infraestructure.Data
                     Estado = clienteDTO.Estado
                 };
 
-                await _context.Clientes.AddAsync(cliente);
-                await _context.SaveChangesAsync();
+                _context.Clientes.Add(cliente);
+                _context.SaveChanges();
             }
             catch (Exception ex)
             {
@@ -53,11 +52,11 @@ namespace BlazorApp.Infraestructure.Data
             }
         }
 
-        public async Task<DTCliente> ObtenerClientePorCedulaAsync(string cedula)
+        public DTCliente ObtenerClientePorCedula(string cedula)
         {
             try
             {
-                var cliente = await _context.Clientes.FirstOrDefaultAsync(c => c.Cedula == cedula);
+                var cliente = _context.Clientes.FirstOrDefault(c => c.Cedula == cedula);
                 return cliente != null ? DTsMapped.ConvertirAClienteDTO(cliente) : null;
             }
             catch (Exception ex)
@@ -67,13 +66,13 @@ namespace BlazorApp.Infraestructure.Data
             }
         }
 
-        public async Task<IList<DTCliente>> ObtenerClientesEnEsperaAsync()
+        public IList<DTCliente> ObtenerClientesEnEspera()
         {
             try
             {
-                var clientes = await _context.Clientes
+                var clientes = _context.Clientes
                     .Where(c => c.Estado == EstadoCliente.Esperando)
-                    .ToListAsync();
+                    .ToList();
 
                 return clientes.Select(c => DTsMapped.ConvertirAClienteDTO(c)).ToList();
             }
@@ -84,16 +83,16 @@ namespace BlazorApp.Infraestructure.Data
             }
         }
 
-        public async Task ActualizarEstadoClientePorCedulaAsync(string cedula, EstadoCliente nuevoEstado)
+        public void ActualizarEstadoClientePorCedula(string cedula, EstadoCliente nuevoEstado)
         {
             try
             {
-                var cliente = await _context.Clientes.FirstOrDefaultAsync(c => c.Cedula == cedula);
+                var cliente = _context.Clientes.FirstOrDefault(c => c.Cedula == cedula);
                 if (cliente != null)
                 {
                     cliente.ActualizarEstado(nuevoEstado);
                     _context.Clientes.Update(cliente);
-                    await _context.SaveChangesAsync();
+                    _context.SaveChanges();
                 }
             }
             catch (Exception ex)
@@ -102,16 +101,16 @@ namespace BlazorApp.Infraestructure.Data
             }
         }
 
-        public async Task ActualizarEstadoClientePorIdAsync(int id, EstadoCliente nuevoEstado)
+        public void ActualizarEstadoClientePorId(int id, EstadoCliente nuevoEstado)
         {
             try
             {
-                var cliente = await _context.Clientes.FirstOrDefaultAsync(c => c.Id == id);
+                var cliente = _context.Clientes.FirstOrDefault(c => c.Id == id);
                 if (cliente != null)
                 {
                     cliente.ActualizarEstado(nuevoEstado);
                     _context.Clientes.Update(cliente);
-                    await _context.SaveChangesAsync();
+                    _context.SaveChanges();
                 }
             }
             catch (Exception ex)
@@ -120,23 +119,20 @@ namespace BlazorApp.Infraestructure.Data
             }
         }
 
-        public async Task ActualizarClienteAsync(DTCliente clienteDTO)
+        public void ActualizarCliente(DTCliente clienteDTO)
         {
             try
             {
-                // Buscar el cliente en la base de datos
-                var clienteExistente = await _context.Clientes.FirstOrDefaultAsync(c => c.Id == clienteDTO.Id);
+                var clienteExistente = _context.Clientes.FirstOrDefault(c => c.Id == clienteDTO.Id);
 
                 if (clienteExistente != null)
                 {
-                    // Actualizar las propiedades del cliente
                     clienteExistente.Cedula = clienteDTO.Cedula;
                     clienteExistente.FechaRegistro = clienteDTO.FechaRegistro;
                     clienteExistente.Estado = clienteDTO.Estado;
 
-                    // Guardar los cambios en la base de datos
                     _context.Clientes.Update(clienteExistente);
-                    await _context.SaveChangesAsync();
+                    _context.SaveChanges();
                 }
                 else
                 {
@@ -148,6 +144,5 @@ namespace BlazorApp.Infraestructure.Data
                 Console.WriteLine($"Error al actualizar el cliente: {ex.Message}");
             }
         }
-
     }
 }

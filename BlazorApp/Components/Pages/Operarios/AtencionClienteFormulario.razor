@@ -46,7 +46,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await HubContext.Clients.All.SendAsync("RefrescarPaginaAtencionCliente"); 
+        await HubContext.Clients.All.SendAsync("RefrescarPaginaAtencionCliente");
 
         atencionCliente.ClienteId = clienteId;
         atencionCliente.OperarioId = operarioId;
@@ -55,21 +55,21 @@
         atencionCliente.Duracion = random.Next(1, 31); // Generar un número aleatorio entre 1 y 30
     }
 
-    private async Task GuardarAtencion()
+    private void GuardarAtencion()
     {
         // Guardar la atención cliente (llama al repositorio para almacenar)
-        await OficinaRepository.AtenderCliente(clienteId, operarioId, oficinaId, atencionCliente.Fecha, atencionCliente.Duracion);
+        OficinaRepository.AtenderCliente(clienteId, operarioId, oficinaId, atencionCliente.Fecha, atencionCliente.Duracion);
         Console.WriteLine("Atención cliente guardada");
 
         // Notificar a todos los clientes para que refresquen la página
-        await HubContext.Clients.All.SendAsync("RefrescarPagina");
+        HubContext.Clients.All.SendAsync("RefrescarPagina", clienteId);
 
         NavigationManager.NavigateTo($"/AtencionAlCliente?oficinaId={oficinaId}&operarioId={operarioId}");
     }
 
     private async Task Cancelar()
     {
-        ClienteRepository.ActualizarEstadoClientePorIdAsync(clienteId, Models.EstadoCliente.Atendido);
+        ClienteRepository.ActualizarEstadoClientePorId(clienteId, Models.EstadoCliente.Atendido);
 
         // Notificar a todos los clientes para que refresquen la página
         await HubContext.Clients.All.SendAsync("RefrescarPagina");

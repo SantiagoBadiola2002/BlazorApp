@@ -47,7 +47,7 @@ else
     {
         try
         {
-            oficinas = await OficinaRepository.ListarClientesOficinasDTOAsync() ?? new List<DTOficina>();
+            oficinas =  OficinaRepository.ListarClientesOficinasDTO() ?? new List<DTOficina>();
             await InvokeAsync(StateHasChanged); // Actualiza la UI
         }
         catch (Exception ex)

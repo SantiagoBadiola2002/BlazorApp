@@ -2,6 +2,7 @@
 {
     public class DTAtencionCliente
     {
+        public int RegistroDeAtencionId { get; set; }
         public int OperarioId { get; set; }
         public int ClienteId { get; set; }
         public int OficinaId { get; set; }

@@ -64,7 +64,7 @@
     // Cargar las oficinas como DTOs desde el repositorio
     protected override async Task OnInitializedAsync()
     {
-        oficinas = await OficinaRepository.ObtenerTodasLasOficinasDTOAsync();
+        oficinas =  OficinaRepository.ObtenerTodasLasOficinasDTO();
     }
 
     // Método que se llama al seleccionar una oficina
@@ -73,7 +73,7 @@
         selectedOficinaId = (int)args;
 
         // Obtener los detalles completos de los operarios de la oficina seleccionada
-        operarios = await OperarioRepository.ObtenerOperariosPorOficinaIdAsync(selectedOficinaId);
+        operarios =  OperarioRepository.ObtenerOperariosPorOficinaId(selectedOficinaId);
 
         // Resetear la alerta al cambiar de oficina
         alertVisible = false;

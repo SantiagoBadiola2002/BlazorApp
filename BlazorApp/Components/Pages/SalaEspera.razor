@@ -133,8 +133,8 @@
 
         if (queryParams.TryGetValue("oficinaId", out var oficinaIdValue) && int.TryParse(oficinaIdValue, out oficinaId))
         {
-            await CargarClientesEnEspera();
-            await CargarClientesProcesando();
+            CargarClientes();
+            clientesProcesando = OficinaRepository.ObtenerClientesProcesandoPorOficinaDTO(oficinaId);
         }
 
         var hubConnection = new HubConnectionBuilder()
@@ -152,7 +152,7 @@
                 clienteLlamado.Estado = Models.EstadoCliente.Procesando;
                 clientesProcesando.Add(clienteLlamado);
 
-                await ClienteRepository.ActualizarEstadoClientePorIdAsync(clienteId, Models.EstadoCliente.Procesando);
+                ClienteRepository.ActualizarEstadoClientePorId(clienteId, Models.EstadoCliente.Procesando);
 
                 mensajeNotificacion = $"El operario {nombreOperario} está llamando al cliente con cédula {clienteLlamado.Cedula}.";
                 mostrarMensaje = true;
@@ -164,45 +164,44 @@
             }
         });
 
-        hubConnection.On("RefrescarPagina", async () =>
+        hubConnection.On<int>("RefrescarPagina", async (clienteId) =>
     {
-        await Task.Delay(100);
-        NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+        // await Task.Delay(100);
+        //NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+        clientesEnEspera.Clear();
+        clientesEnEspera = OficinaRepository.ObtenerClientesEnEsperaPorOficinaDTO(oficinaId);
+        var clienteAEliminar = clientesProcesando.FirstOrDefault(c => c.Id == clienteId);
+        clientesProcesando.Remove(clienteAEliminar);
+        //clientesProcesando.Clear();
+        //CargarClientes();
+        await InvokeAsync(StateHasChanged);
+
     });
 
         await hubConnection.StartAsync();
     }
 
 
-    private async Task CargarClientesEnEspera()
+    private void CargarClientes()
     {
         if (oficinaId > 0)
         {
-            clientesEnEspera = await OficinaRepository.ObtenerClientesEnEsperaPorOficinaDTOAsync(oficinaId);
+            // Carga clientes en espera y en procesamiento
+            clientesEnEspera = OficinaRepository.ObtenerClientesEnEsperaPorOficinaDTO(oficinaId);
+            //clientesProcesando = OficinaRepository.ObtenerClientesProcesandoPorOficinaDTO(oficinaId);
 
+            // Cargar nombre de la oficina
             var oficinaDTO = OficinaRepository.ObtenerOficinaPorIdDTO(oficinaId);
             nombreOficina = oficinaDTO?.Nombre;
         }
         else
         {
+            // Limpia ambas listas si oficinaId no es válido
             clientesEnEspera.Clear();
-        }
-    }
-
-    private async Task CargarClientesProcesando()
-    {
-        if (oficinaId > 0)
-        {
-            clientesProcesando = await OficinaRepository.ObtenerClientesProcesandoPorOficinaDTOAsync(oficinaId);
-
-            var oficinaDTO = OficinaRepository.ObtenerOficinaPorIdDTO(oficinaId);
-            nombreOficina = oficinaDTO?.Nombre;
-        }
-        else
-        {
             clientesProcesando.Clear();
         }
     }
+
 
     void OnClose()
     {

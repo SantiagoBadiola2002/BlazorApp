@@ -3,9 +3,11 @@
 @using BlazorApp.Models
 @using BlazorApp.Models.DTs
 @using BlazorApp.Models.Interfaces
+@using Microsoft.AspNetCore.SignalR;
 @inject NavigationManager NavigationManager
 @inject IClienteRepository ClienteRepository
 @inject IOficinaRepository OficinaRepository
+@inject IHubContext<BlazorApp.Hubs.NotificacionesHub> HubContext;
 
 <h3>Registro de Cliente en Oficina: @nombreOficina</h3>
 
@@ -79,15 +81,17 @@ else
             // Registrar el cliente en la oficina seleccionada
             Console.WriteLine("### /registroCliente/ ###");
             Console.WriteLine("### nuevoCliente CI: " + nuevoCliente.Cedula + "Oficina ID: " + oficinaId + "###");
-            await OficinaRepository.RegistrarClienteEnOficinaAsync(oficinaId, nuevoCliente);
+            OficinaRepository.RegistrarClienteEnOficina(oficinaId, nuevoCliente);
             alertMessage = $"Cliente registrado exitosamente en la oficina {nombreOficina}.";
             isError = false;
             cedula = string.Empty;
             await MostrarAlertaTemporal();
+
+            await HubContext.Clients.All.SendAsync("RefrescarPagina", 0);
         }
         catch (Exception ex)
         {
-            alertMessage = "Error al registrar el cliente: " + ex.Message;
+            alertMessage = ex.Message;
             isError = true;
             await MostrarAlertaTemporal();
         }
@@ -97,7 +101,7 @@ else
     {
         alertVisible = true;
         StateHasChanged();
-        await Task.Delay(3000);
+        await Task.Delay(6000);
         alertVisible = false;
         StateHasChanged();
     }

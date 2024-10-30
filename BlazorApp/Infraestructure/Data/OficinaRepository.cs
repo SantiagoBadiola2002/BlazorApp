@@ -3,7 +3,9 @@ using BlazorApp.Models;
 using BlazorApp.Models.DTs;
 using BlazorApp.Models.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using BlazorApp.Components.Pages.Operarios;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace BlazorApp.Infraestructure.Data
 {
@@ -16,93 +18,84 @@ namespace BlazorApp.Infraestructure.Data
             _contexto = contexto;
         }
 
-        // Obtener una oficina por su ID y devolver como DTO
         public DTOficina ObtenerOficinaPorIdDTO(int id)
         {
-#pragma warning disable CS8603 // Posible tipo de valor devuelto de referencia nulo
             var oficina = _contexto.Oficinas
                             .Include(o => o.Operarios)
                             .Include(o => o.Clientes)
                             .FirstOrDefault(o => o.Id == id);
-#pragma warning restore CS8603 // Posible tipo de valor devuelto de referencia nulo
 
             return DTsMapped.ConvertirAOficinaDTO(oficina);
         }
 
-        // Obtener todas las oficinas y devolver como DTOs
-        public async Task<List<DTOficina>> ObtenerTodasLasOficinasDTOAsync()
+        public List<DTOficina> ObtenerTodasLasOficinasDTO()
         {
-            var oficinas = await _contexto.Oficinas
+            var oficinas = _contexto.Oficinas
                             .Include(o => o.Operarios)
                             .Include(o => o.Clientes)
-                            .ToListAsync();
+                            .ToList();
 
             return oficinas.Select(DTsMapped.ConvertirAOficinaDTO).ToList();
         }
 
-       // Obtener cantidad de clientes en cada oficinas y devolver como DTOs
-       public async Task<List<DTOficina>> ListarClientesOficinasDTOAsync()
-       {
-           return await _contexto.Oficinas
-       .Include(o => o.Clientes)
-       .Select(o => new DTOficina
-       {
-           Id = o.Id,
-           Nombre = o.Nombre,
-           ClientesIds = o.Clientes
-                .Where(c => c.Estado == EstadoCliente.Esperando)
-               .Select(c => c.Id)
-               .ToList(),
-       })
-       .ToListAsync();
-       }
-
-       //Obtiene todas las consultas que fueron atendidas segun la fecha indicada
-       public async Task<List<DTAtencionCliente>> ObtenerTodosLosRegistrosAsync(int dia, int mes, int anio)
-       {
-               var registros = await _contexto.RegistrosDeAtencion
-                   .Where(r => r.Fecha.Day == dia && r.Fecha.Month == mes && r.Fecha.Year == anio)
-                   .ToListAsync();
-
-               return registros.Select(r => new DTAtencionCliente
-               {
-                   RegistroDeAtencionId = r.RegistroDeAtencionId,
-                   OperarioId = r.OperarioId,
-                   ClienteId = r.ClienteId,
-                   OficinaId = r.OficinaId,
-                   Fecha = r.Fecha,
-                   Duracion = r.DuracionAtencion
-               }).ToList();
-           
-       }
-
-       //Obtiene cuantos clientes(nro) fueron atendidos en los 12 meses
-       public async Task<List<DTAtencionCliente>> ObtenerClientesPorMesAsync(int año)
-       {
-           var registros = await _contexto.RegistrosDeAtencion
-               .Where(r => r.Fecha.Year == año)
-               .ToListAsync(); 
-
-           var clientesPorMes = registros
-               .GroupBy(r => r.Fecha.Month)
-               .Select(g => new DTAtencionCliente
-               {
-                   Fecha = new DateTime(año, g.Key, 1),
-                   Duracion = g.Count()
-               })
-               .OrderBy(r => r.Fecha)
-               .ToList();
-
-           return clientesPorMes;
-       }
-
-
-        // Obtener clientes en espera por oficina y devolver como DTOs
-        public async Task<List<DTCliente>> ObtenerClientesEnEsperaPorOficinaDTOAsync(int oficinaId)
+        public List<DTOficina> ListarClientesOficinasDTO()
         {
-            var oficina = await _contexto.Oficinas
+            return _contexto.Oficinas
                 .Include(o => o.Clientes)
-                .FirstOrDefaultAsync(o => o.Id == oficinaId);
+                .Select(o => new DTOficina
+                {
+                    Id = o.Id,
+                    Nombre = o.Nombre,
+                    ClientesIds = o.Clientes
+                        .Where(c => c.Estado == EstadoCliente.Esperando)
+                        .Select(c => c.Id)
+                        .ToList(),
+                })
+                .ToList();
+        }
+
+        public List<DTAtencionCliente> ObtenerTodosLosRegistros(int dia, int mes, int anio)
+        {
+            var registros = _contexto.RegistrosDeAtencion
+                .Where(r => r.Fecha.Day == dia && r.Fecha.Month == mes && r.Fecha.Year == anio)
+                .ToList();
+
+            return registros.Select(r => new DTAtencionCliente
+            {
+                RegistroDeAtencionId = r.RegistroDeAtencionId,
+                OperarioId = r.OperarioId,
+                ClienteId = r.ClienteId,
+                OficinaId = r.OficinaId,
+                Fecha = r.Fecha,
+                Duracion = r.DuracionAtencion
+            }).ToList();
+        }
+
+        public List<DTAtencionCliente> ObtenerClientesPorMes(int año)
+        {
+            var registros = _contexto.RegistrosDeAtencion
+                .Where(r => r.Fecha.Year == año)
+                .ToList();
+
+            var clientesPorMes = registros
+                .GroupBy(r => r.Fecha.Month)
+                .Select(g => new DTAtencionCliente
+                {
+                    Fecha = new DateTime(año, g.Key, 1),
+                    Duracion = g.Count()
+                })
+                .OrderBy(r => r.Fecha)
+                .ToList();
+
+            return clientesPorMes;
+        }
+
+        public List<DTCliente> ObtenerClientesEnEsperaPorOficinaDTO(int oficinaId)
+        {
+            var oficina = _contexto.Oficinas
+                .Include(o => o.Clientes)
+                .AsNoTracking() // Desactiva el seguimiento para evitar caché
+                .FirstOrDefault(o => o.Id == oficinaId);
 
             if (oficina == null)
             {
@@ -116,11 +109,12 @@ namespace BlazorApp.Infraestructure.Data
                 .ToList();
         }
 
-        public async Task<List<DTCliente>> ObtenerClientesProcesandoPorOficinaDTOAsync(int oficinaId)
+        public List<DTCliente> ObtenerClientesProcesandoPorOficinaDTO(int oficinaId)
         {
-            var oficina = await _contexto.Oficinas
+            var oficina = _contexto.Oficinas
                 .Include(o => o.Clientes)
-                .FirstOrDefaultAsync(o => o.Id == oficinaId);
+                .AsNoTracking() // Desactiva el seguimiento para evitar caché
+                .FirstOrDefault(o => o.Id == oficinaId);
 
             if (oficina == null)
             {
@@ -167,85 +161,70 @@ namespace BlazorApp.Infraestructure.Data
             }
         }
 
-        public async Task RegistrarClienteEnOficinaAsync(int oficinaId, DTCliente nuevoCliente)
+        public void RegistrarClienteEnOficina(int oficinaId, DTCliente nuevoCliente)
         {
-            // Obtener la oficina y verificar si existe
-            var oficina = await _contexto.Oficinas
-                .Include(o => o.Clientes) // Incluir los clientes existentes
-                .FirstOrDefaultAsync(o => o.Id == oficinaId);
-
-            if (oficina != null)
+            try
             {
-                // Verificar si hay algún cliente con la misma cédula y en estado 'Esperando'
+                var oficina = _contexto.Oficinas
+                    .Include(o => o.Clientes)
+                    .FirstOrDefault(o => o.Id == oficinaId);
+
+                if (oficina == null)
+                {
+                    throw new Exception($"La oficina con ID {oficinaId} no existe.");
+                }
+
+                // Verificar si el cliente ya está en estado "Esperando"
                 var clienteExistente = oficina.Clientes.FirstOrDefault(c => c.Cedula == nuevoCliente.Cedula && c.Estado == EstadoCliente.Esperando);
 
-                if (clienteExistente == null)
+                if (clienteExistente != null)
                 {
-                    // No hay clientes con la misma cédula en estado 'Esperando', se puede registrar el nuevo cliente
-                    var cliente = new Cliente
-                    {
-                        Cedula = nuevoCliente.Cedula,
-                        FechaRegistro = nuevoCliente.FechaRegistro,
-                        Estado = nuevoCliente.Estado
-                    };
-
-                    // Agregar el cliente a la lista de clientes de la oficina
-                    oficina.Clientes.Add(cliente);
-
-                    // Guardar los cambios en la base de datos
-                    await _contexto.SaveChangesAsync();
-
-                    Console.WriteLine("### OficinaRepository ###");
-                    Console.WriteLine("Cliente Cedula: " + nuevoCliente.Cedula + " registrado en la oficina ID: " + oficina.Id);
-                    Console.WriteLine("#########################");
+                    throw new InvalidOperationException($"El cliente con cédula {nuevoCliente.Cedula} ya está en espera en la oficina.");
                 }
-                else
+
+                // Crear y agregar nuevo cliente si no existe en espera
+                var cliente = new Cliente
                 {
-                    // Existe un cliente con la misma cédula en estado 'Esperando'
-                    Console.WriteLine("### OficinaRepository ###");
-                    Console.WriteLine("No se puede registrar el cliente con cédula: " + nuevoCliente.Cedula + " porque ya existe uno con estado 'Esperando' en la oficina ID: " + oficina.Id);
-                    Console.WriteLine("#########################");
-                }
+                    Cedula = nuevoCliente.Cedula,
+                    FechaRegistro = nuevoCliente.FechaRegistro,
+                    Estado = nuevoCliente.Estado
+                };
+
+                oficina.Clientes.Add(cliente);
+                _contexto.SaveChanges();
             }
-            else
+            catch (Exception ex)
             {
-                // La oficina no existe
-                Console.WriteLine("### OficinaRepository ###");
-                Console.WriteLine("Oficina no encontrada para la ID: " + oficinaId);
-                Console.WriteLine("#########################");
+                // Manejo de cualquier otra excepción
+                throw new Exception("Ocurrió un error al registrar el cliente en la oficina: " + ex.Message);
             }
         }
 
-        public async Task AtenderCliente(int clienteId, int operarioId, int oficinaId, DateTime fecha, int duracion)
+
+        public void AtenderCliente(int clienteId, int operarioId, int oficinaId, DateTime fecha, int duracion)
         {
-            // Buscar la oficina, el cliente, y el operario para asegurarse de que existen
-            var oficina = await _contexto.Oficinas
-                .Include(o => o.Clientes) // Incluimos los clientes
-                .Include(o => o.Operarios) // Incluimos los operarios
-                .FirstOrDefaultAsync(o => o.Id == oficinaId);
+            var oficina = _contexto.Oficinas
+                .Include(o => o.Clientes)
+                .Include(o => o.Operarios)
+                .FirstOrDefault(o => o.Id == oficinaId);
 
             if (oficina == null)
             {
-                // Si la oficina no existe, lanzar una excepción o manejar el error de alguna otra manera
                 throw new Exception($"Oficina con ID {oficinaId} no encontrada.");
             }
 
-            // Buscar el cliente sin filtrar por el estado "Esperando"
             var cliente = oficina.Clientes.FirstOrDefault(c => c.Id == clienteId);
             if (cliente == null)
             {
-                // Si el cliente no se encuentra, manejar el error
                 throw new Exception($"Cliente con ID {clienteId} no encontrado en la oficina ID {oficinaId}.");
             }
 
             var operario = oficina.Operarios.FirstOrDefault(o => o.Id == operarioId);
             if (operario == null)
             {
-                // Si el operario no existe en la oficina, lanzar una excepción o manejar el error
                 throw new Exception($"Operario con ID {operarioId} no encontrado en la oficina ID {oficinaId}.");
             }
 
-            // Crear un nuevo registro de atención
             var atencion = new RegistroDeAtencion
             {
                 ClienteId = cliente.Id,
@@ -255,22 +234,10 @@ namespace BlazorApp.Infraestructure.Data
                 DuracionAtencion = duracion
             };
 
-            // Cambiar el estado del cliente a "Atendido"
             cliente.Estado = EstadoCliente.Atendido;
 
-            // Agregar el registro de atención al contexto de la base de datos
             _contexto.RegistrosDeAtencion.Add(atencion);
-
-            // Guardar los cambios en la base de datos
-            await _contexto.SaveChangesAsync();
-
-            Console.WriteLine("### OficinaRepository ###");
-            Console.WriteLine($"Cliente ID: {cliente.Id} atendido por Operario ID: {operario.Id} en la Oficina ID: {oficina.Id}.");
-            Console.WriteLine("#########################");
+            _contexto.SaveChanges();
         }
-
-
-
-
     }
 }

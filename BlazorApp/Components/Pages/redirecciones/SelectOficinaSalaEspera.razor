@@ -31,7 +31,7 @@
     protected override async Task OnInitializedAsync()
     {
         // Ahora obtenemos las oficinas como DTOs
-        oficinas = await OficinaRepository.ObtenerTodasLasOficinasDTOAsync();
+        oficinas = OficinaRepository.ObtenerTodasLasOficinasDTO();
     }
 
     private async Task OficinaSeleccionada(object args)

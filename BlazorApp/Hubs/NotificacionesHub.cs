@@ -4,33 +4,28 @@ namespace BlazorApp.Hubs
 {
     public class NotificacionesHub : Hub
     {
-
-        public async Task NotificarLlamadoCliente(int clienteId, String operarioNombre)
+        public void NotificarLlamadoCliente(int clienteId, string operarioNombre)
         {
-            // Enviar la notificación a todos los clientes conectados
             Console.WriteLine("### NotificacionHub. clienteId: " + clienteId + ", operarioNombre: " + operarioNombre);
-            await Clients.All.SendAsync("LlamandoCliente", clienteId, operarioNombre);
+            Clients.All.SendAsync("LlamandoCliente", clienteId, operarioNombre).GetAwaiter().GetResult();
         }
 
-        public async Task RefrescarPaginas()
+        public void RefrescarPaginas(int clienteId)
         {
-            // Enviar una notificación de refresco a todos los clientes conectados
             Console.WriteLine("### NotificacionHub. Refrescando todas las páginas");
-            await Clients.All.SendAsync("RefrescarPagina");
+            Clients.All.SendAsync("RefrescarPagina").GetAwaiter().GetResult();
         }
 
-        public async Task RefrescarPaginaAtencionCliente()
+        public void RefrescarPaginaAtencionCliente()
         {
-            // Enviar una notificación de refresco a todos los clientes conectados
             Console.WriteLine("### NotificacionHub. Refrescando pagina AtencionCliente");
-            await Clients.All.SendAsync("RefrescarPaginaAtencionCliente");
+            Clients.All.SendAsync("RefrescarPaginaAtencionCliente").GetAwaiter().GetResult();
         }
 
-        public async Task ActualizarClientesEnEspera()
+        public void ActualizarClientesEnEspera()
         {
             Console.WriteLine("### NotificacionHub. Actualizando lista de clientes en espera");
-            await Clients.All.SendAsync("ActualizarListaClientesEnEspera");
+            Clients.All.SendAsync("ActualizarListaClientesEnEspera").GetAwaiter().GetResult();
         }
-
     }
 }

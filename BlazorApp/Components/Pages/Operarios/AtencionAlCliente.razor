@@ -86,7 +86,7 @@
                 this.oficinaId = oficinaId;
                 this.operarioId = operarioId;
 
-                var operarioDTO = await OperarioRepository.GetOperarioByIdAsync(operarioId);
+                var operarioDTO =  OperarioRepository.GetOperarioById(operarioId);
                 if (operarioDTO != null)
                 {
                     nombreOperario = operarioDTO.Nombre;
@@ -102,8 +102,11 @@
                 hubConnection.On("RefrescarPaginaAtencionCliente", async () =>
                 {
                     // Recargar completamente la página al recibir la notificación
-                    await Task.Delay(100);
-                    NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+                    //await Task.Delay(100);
+                    //NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+                    clientesEnEspera.Clear();
+                    CargarClientesEnEspera();
+                    await InvokeAsync(StateHasChanged);
                 });
 
                 await hubConnection.StartAsync();
@@ -116,7 +119,7 @@
     {
         if (oficinaId > 0)
         {
-            clientesEnEspera = await OficinaRepository.ObtenerClientesEnEsperaPorOficinaDTOAsync(oficinaId);
+            clientesEnEspera =  OficinaRepository.ObtenerClientesEnEsperaPorOficinaDTO(oficinaId);
             var oficinaDTO = OficinaRepository.ObtenerOficinaPorIdDTO(oficinaId);
             if (oficinaDTO != null)
             {

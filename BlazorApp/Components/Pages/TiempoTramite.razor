@@ -80,7 +80,7 @@ else
     private async Task LoadOficinasAsync()
     {
         // Lógica para cargar datos, incluyendo llamada a SignalR si es necesario
-        clientesAtencion = await OficinaRepository.ObtenerTodosLosRegistrosAsync(Dia, Mes, Año) ?? new List<DTAtencionCliente>();
+        clientesAtencion =  OficinaRepository.ObtenerTodosLosRegistros(Dia, Mes, Año) ?? new List<DTAtencionCliente>();
         await InvokeAsync(StateHasChanged); // Actualiza la UI
     }
 }
