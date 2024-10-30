@@ -46,6 +46,8 @@
 
   <ItemGroup>
     <None Include="Components\Pages\InfoOficinas.razor" />
+    <None Include="Components\Pages\redirecciones\LoginAdmininistradorAOficinasAdmin.razor" />
+    <None Include="Components\Pages\redirecciones\LoginAdmininistradorAOperariosAdmin.razor" />
     <None Include="Components\Pages\redirecciones\SelectOficinaRegistrarClientes.razor" />
     <None Include="wwwroot\images\utecLogo.png" />
   </ItemGroup>

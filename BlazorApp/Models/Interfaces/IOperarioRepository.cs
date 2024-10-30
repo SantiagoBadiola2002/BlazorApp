@@ -11,6 +11,6 @@ namespace BlazorApp.Models.Interfaces
         Task DeleteOperarioAsync(int id);
         Task<DTOperario> VerificarCredencialesAsync(string nombre, string contraseña);
         Task<List<DTOperario>> ObtenerOperariosPorOficinaIdAsync(int oficinaId);
-        //Task<DTOperario> ObtenerOperarioPorClienteId(int clienteId);
+        Task<DTOperario> VerificarCredencialesAsync(int idOficina, string nombre, string contraseña, Rol rol);
     }
 }

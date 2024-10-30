@@ -140,5 +140,28 @@ namespace BlazorApp.Infraestructure.Data
             }
         }
 
+        public async Task<DTOperario> VerificarCredencialesAsync(int idOficina, string nombre, string contraseña, Rol rol)
+        {
+            try
+            {
+                // Filtra por OficinaId, Nombre, Contraseña y Rol
+                var operario = await _context.Operarios
+                    .FirstOrDefaultAsync(o => o.OficinaId == idOficina
+                                              && o.Nombre == nombre
+                                              && o.Contraseña == contraseña
+                                              && o.RolOperario == rol);
+
+                // Si se encuentra el operario, conviértelo a DTO y retorna, de lo contrario retorna null
+                return operario != null ? DTsMapped.ConvertirAOperarioDTO(operario) : null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al verificar las credenciales del operario: {ex.Message}");
+                return null;
+            }
+        }
+
+
+
     }
 }
