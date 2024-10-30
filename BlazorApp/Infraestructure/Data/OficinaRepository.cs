@@ -40,6 +40,63 @@ namespace BlazorApp.Infraestructure.Data
             return oficinas.Select(DTsMapped.ConvertirAOficinaDTO).ToList();
         }
 
+       // Obtener cantidad de clientes en cada oficinas y devolver como DTOs
+       public async Task<List<DTOficina>> ListarClientesOficinasDTOAsync()
+       {
+           return await _contexto.Oficinas
+       .Include(o => o.Clientes)
+       .Select(o => new DTOficina
+       {
+           Id = o.Id,
+           Nombre = o.Nombre,
+           ClientesIds = o.Clientes
+                .Where(c => c.Estado == EstadoCliente.Esperando)
+               .Select(c => c.Id)
+               .ToList(),
+       })
+       .ToListAsync();
+       }
+
+       //Obtiene todas las consultas que fueron atendidas segun la fecha indicada
+       public async Task<List<DTAtencionCliente>> ObtenerTodosLosRegistrosAsync(int dia, int mes, int anio)
+       {
+               var registros = await _contexto.RegistrosDeAtencion
+                   .Where(r => r.Fecha.Day == dia && r.Fecha.Month == mes && r.Fecha.Year == anio)
+                   .ToListAsync();
+
+               return registros.Select(r => new DTAtencionCliente
+               {
+                   RegistroDeAtencionId = r.RegistroDeAtencionId,
+                   OperarioId = r.OperarioId,
+                   ClienteId = r.ClienteId,
+                   OficinaId = r.OficinaId,
+                   Fecha = r.Fecha,
+                   Duracion = r.DuracionAtencion
+               }).ToList();
+           
+       }
+
+       //Obtiene cuantos clientes(nro) fueron atendidos en los 12 meses
+       public async Task<List<DTAtencionCliente>> ObtenerClientesPorMesAsync(int año)
+       {
+           var registros = await _contexto.RegistrosDeAtencion
+               .Where(r => r.Fecha.Year == año)
+               .ToListAsync(); 
+
+           var clientesPorMes = registros
+               .GroupBy(r => r.Fecha.Month)
+               .Select(g => new DTAtencionCliente
+               {
+                   Fecha = new DateTime(año, g.Key, 1),
+                   Duracion = g.Count()
+               })
+               .OrderBy(r => r.Fecha)
+               .ToList();
+
+           return clientesPorMes;
+       }
+
+
         // Obtener clientes en espera por oficina y devolver como DTOs
         public async Task<List<DTCliente>> ObtenerClientesEnEsperaPorOficinaDTOAsync(int oficinaId)
         {
