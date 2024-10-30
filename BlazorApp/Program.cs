@@ -65,6 +65,7 @@ app.UseAntiforgery();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
+app.MapHub<OficinasHub>("/oficinasHub");
 app.MapHub<NotificacionesHub>("/notificacionesHub");
 
 app.Run();
