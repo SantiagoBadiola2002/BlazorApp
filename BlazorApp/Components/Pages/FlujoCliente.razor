@@ -1,0 +1,85 @@
+﻿@page "/flujoCliente"
+@using BlazorApp.Models.DTs
+@using BlazorApp.Models.Interfaces
+@using Microsoft.AspNetCore.SignalR.Client
+@inject IOficinaRepository OficinaRepository
+@inject NavigationManager NavigationManager
+
+<h3>Lista de Oficinas</h3>
+
+@if (oficinas == null)
+{
+    <p>Cargando oficinas...</p>
+}
+else
+{
+    <button @onclick="LoadOficinasAsync">Actualizar Oficinas</button>
+    <RadzenDataGrid AllowFiltering="true" AllowSorting="true" PageSize="5" AllowPaging="true" Data="@oficinas" ColumnWidth="300px" @key="oficinas?.Count">
+        <Columns>
+            <RadzenDataGridColumn Title="Clientes" Width="300px">
+                <Template Context="data">
+                    @{
+                        var clienteCount = data.ClientesIds.Count();
+                        var rectColor = clienteCount < 5 ? "green" : clienteCount < 10 ? "yellow" : "red";
+                        var rectWidth = Math.Max(clienteCount * 20, 0);
+                    }
+                    <svg width="100%" height="30">
+                        <rect width="@rectWidth" height="20" fill="@rectColor" />
+                        <text x="@(rectWidth + 5)" y="15" fill="black">@clienteCount</text>
+                    </svg>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+
+@code {
+    private List<DTOficina> oficinas;
+    private HubConnection hubConnection;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadOficinasAsync();  // Carga inicial
+        await SetupSignalRAsync();  // Configura SignalR para actualizaciones en tiempo real
+    }
+
+    private async Task LoadOficinasAsync()
+    {
+        try
+        {
+            oficinas = await OficinaRepository.ListarClientesOficinasDTOAsync() ?? new List<DTOficina>();
+            await InvokeAsync(StateHasChanged); // Actualiza la UI
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error fetching oficinas: {ex.Message}");
+            oficinas = new List<DTOficina>();
+            await InvokeAsync(StateHasChanged); // Asegura que la UI refleje el estado
+        }
+    }
+
+    private async Task SetupSignalRAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/oficinasHub"))
+            .Build();
+
+        hubConnection.On<List<DTOficina>>("ReceiveOficinas", (updatedOficinas) =>
+        {
+            oficinas = new List<DTOficina>(updatedOficinas); // Actualiza oficinas directamente
+            InvokeAsync(StateHasChanged); // Refresca la UI en tiempo real
+        });
+
+        await hubConnection.StartAsync();
+    }
+
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection != null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+}
+

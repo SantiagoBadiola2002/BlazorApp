@@ -1,46 +1,10 @@
 ﻿@page "/infoOficinas"
-@rendermode InteractiveServer
-@using BlazorApp.Models.DTs
-@using BlazorApp.Models.Interfaces
-@inject IOficinaRepository OficinaRepository
 
-<h3>Lista de Oficinas</h3>
 
-<RadzenDataGrid AllowFiltering="true" AllowSorting="true" PageSize="5" AllowPaging="true" Data="@oficinas" ColumnWidth="300px">
-    <Columns>
-        <RadzenDataGridColumn Property="@nameof(DTOficina.Id)" Title="Oficina ID" Width="80px" TextAlign="TextAlign.Center" />
-        <RadzenDataGridColumn Property="@nameof(DTOficina.Nombre)" Title="Nombre" Width="95px" />
+<h3>Panel de Reportes</h3>
 
-        <RadzenDataGridColumn Title="Operarios" Width="240px">
-            <Template Context="data">
-                <ul>
-                    @foreach (var operarioId in data.OperariosIds)
-                    {
-                        <li>Operario ID: @operarioId</li> <!-- Similar al puesto, puedes personalizar si tienes más información del operario -->
-                    }
-                </ul>
-            </Template>
-        </RadzenDataGridColumn>
-
-        <RadzenDataGridColumn Title="Clientes" Width="300px">
-            <Template Context="data">
-                <ul>
-                    @foreach (var clienteId in data.ClientesIds)
-                    {
-                        <li>Cliente ID: @clienteId</li> <!-- Puedes obtener más detalles si es necesario -->
-                    }
-                </ul>
-            </Template>
-        </RadzenDataGridColumn>
-    </Columns>
-</RadzenDataGrid>
-
-@code {
-    private List<DTOficina> oficinas;
-
-    protected override async Task OnInitializedAsync()
-    {
-        // Usamos el método que retorna las oficinas en formato DTO
-        oficinas = await OficinaRepository.ObtenerTodasLasOficinasDTOAsync();
-    }
-}
+<nav class="navbar">
+    <NavLink href="/mesTramite" class="nav-link">Mes de Trámite</NavLink>
+    <NavLink href="/flujoCliente" class="nav-link">Flujo de Cliente</NavLink>
+    <NavLink href="/tiempoTramite" class="nav-link">Tiempo de Trámite</NavLink>
+</nav>

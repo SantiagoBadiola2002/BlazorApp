@@ -7,6 +7,9 @@ namespace BlazorApp.Models.Interfaces {
         {
             DTOficina ObtenerOficinaPorIdDTO(int id);
             Task<List<DTOficina>> ObtenerTodasLasOficinasDTOAsync();
+        Task<List<DTOficina>> ListarClientesOficinasDTOAsync();
+        Task<List<DTAtencionCliente>> ObtenerTodosLosRegistrosAsync(int dia, int mes, int anio);
+        Task<List<DTAtencionCliente>> ObtenerClientesPorMesAsync(int año);
             void AgregarOficina(Oficina oficina);
             void ActualizarOficina(Oficina oficina);
             void EliminarOficina(int id);
