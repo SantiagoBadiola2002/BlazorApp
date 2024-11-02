@@ -1,10 +1,15 @@
-﻿using BlazorApp.Models.DTs;
+using BlazorApp.Models.DTs;
 using Microsoft.AspNetCore.SignalR;
 
-public class OficinasHub : Hub
+namespace BlazorApp.Hubs
 {
-    public async Task EnviarOficinasActualizadas(List<DTOficina> oficinas)
+    public class OficinasHub : Hub
     {
-        await Clients.All.SendAsync("ReceiveOficinas", oficinas);
+        public void EnviarOficinasActualizadas()
+        {
+            Console.WriteLine("### NotificacionHub. Refrescando Flujo Cliente");
+            Clients.All.SendAsync("ReceiveOficinas").GetAwaiter().GetResult();
+        }
     }
+
 }
