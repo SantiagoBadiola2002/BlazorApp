@@ -1,0 +1,56 @@
+﻿@page "/mesTramite"
+@rendermode InteractiveServer
+@using BlazorApp.Models.DTs
+@using BlazorApp.Models.Interfaces
+@inject IOficinaRepository OficinaRepository
+@using Radzen
+@using Radzen.Blazor
+
+<h3>Clientes Atendidos por Mes - Año @Año</h3>
+
+<RadzenDropDown @bind-Value="Año" Data="@añosDisponibles" TextProperty="Texto" ValueProperty="Valor"
+                Change="@(async args => await ActualizarGraficoAsync())" />
+
+<RadzenChart Data="@clientesAtencion.OrderBy(c => c.Mes)" Style="height:400px; width:100%;">
+    <RadzenBarSeries Data="@clientesAtencion"
+                     CategoryProperty="NombreMes"
+                     ValueProperty="Duracion"
+                     Title="Clientes Atendidos" />
+</RadzenChart>
+
+@code {
+    private List<DTAtencionCliente> clientesAtencion = new List<DTAtencionCliente>();
+    public int Año { get; set; } = DateTime.Now.Year; // Valor predeterminado al año actual
+    private List<AñoItem> añosDisponibles = new List<AñoItem>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAñosDisponiblesAsync();  // Carga los años disponibles
+        await LoadOficinasAsync();          // Carga inicial de oficinas
+    }
+
+    private async Task LoadAñosDisponiblesAsync()
+    {
+        // Cargar los años disponibles desde la base de datos
+        var años = OficinaRepository.ObtenerAñosDisponibles(); // Este método debe devolver una lista de años
+        añosDisponibles = años.Select(a => new AñoItem { Valor = a }).ToList(); // No se asigna a Texto
+    }
+
+    private async Task LoadOficinasAsync()
+    {
+        // Cargar datos para el año seleccionado
+        clientesAtencion = OficinaRepository.ObtenerClientesPorMes(Año) ?? new List<DTAtencionCliente>();
+    }
+
+    private async Task ActualizarGraficoAsync()
+    {
+        await LoadOficinasAsync(); // Carga los datos del año seleccionado
+        await InvokeAsync(StateHasChanged); // Refresca la interfaz después de cargar los datos
+    }
+
+    public class AñoItem
+    {
+        public int Valor { get; set; }
+        public string Texto => Valor.ToString(); // Texto a mostrar en el dropdown (solo lectura)
+    }
+}
