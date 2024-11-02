@@ -1,4 +1,4 @@
-﻿using BlazorApp.Models.DTs;
+using BlazorApp.Models.DTs;
 
 namespace BlazorApp.Models.Interfaces
 {
@@ -9,6 +9,7 @@ namespace BlazorApp.Models.Interfaces
         List<DTOficina> ListarClientesOficinasDTO();
         List<DTAtencionCliente> ObtenerTodosLosRegistros(int dia, int mes, int anio);
         List<DTAtencionCliente> ObtenerClientesPorMes(int año);
+        public List<int> ObtenerAñosDisponibles();
         void AgregarOficina(Oficina oficina);
         void ActualizarOficina(Oficina oficina);
         void EliminarOficina(int id);
