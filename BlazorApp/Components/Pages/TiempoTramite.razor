@@ -1,17 +1,15 @@
-﻿@page "/tiempoTramite"
+@page "/tiempoTramite"
+@rendermode InteractiveServer
 @using BlazorApp.Models.DTs
 @using BlazorApp.Models.Interfaces
 @using Microsoft.AspNetCore.SignalR.Client
 @inject IOficinaRepository OficinaRepository
 @inject NavigationManager NavigationManager
 
-
-
 <h3>Consulta de Atención de Clientes</h3>
 
 <!-- Sección para filtrar por fecha -->
-<div>
-    <h4>Filtrar por fecha</h4>
+<div class="filtro-fecha">
     <div>
         <label>Día: </label>
         <input type="number" @bind="Dia" min="1" max="31" />
@@ -24,27 +22,30 @@
         <label>Año: </label>
         <input type="number" @bind="Año" min="2000" />
     </div>
+    <button @onclick="LoadOficinasAsync">Consultar Atención</button>
 </div>
-
-<button @onclick="LoadOficinasAsync">Consultar Atención</button>
 
 @if (clientesAtencion == null)
 {
     <p>Cargando oficinas...</p>
 }
+else if (clientesAtencion.Count == 0)
+{
+    <h4>No se encontraron registros para la fecha seleccionada.</h4>
+}
 else
 {
     <h4>Resultados de la consulta</h4>
-    <RadzenDataGrid Data="@clientesAtencion" TItem="DTAtencionCliente" Striped="true" ShowFilterRow="true">
+    <RadzenDataGrid Data="@clientesAtencion" TItem="DTAtencionCliente" Striped="true" ShowFilterRow="true" class="radzen-grid">
         <Columns>
-            <RadzenDataGridColumn Property="RegistroDeAtencionId" Title="RegistroDeAtencionId" />
-            <RadzenDataGridColumn Property="OperarioId" Title="Operario" />
-            <RadzenDataGridColumn Property="ClienteId" Title="Cliente" />
-            <RadzenDataGridColumn Property="OficinaId" Title="Oficina" />
+            <RadzenDataGridColumn Property="RegistroDeAtencionId" Title="Registro De Atención Id" />
+            <RadzenDataGridColumn Property="NombreOperario" Title="Operario" />
+            <RadzenDataGridColumn Property="NombreOficina" Title="Oficina" />
             <RadzenDataGridColumn Property="Fecha" Title="Fecha" />
             <RadzenDataGridColumn Property="Duracion" Title="Duración" />
         </Columns>
     </RadzenDataGrid>
+
 }
 
 @code {
@@ -80,7 +81,7 @@ else
     private async Task LoadOficinasAsync()
     {
         // Lógica para cargar datos, incluyendo llamada a SignalR si es necesario
-        clientesAtencion =  OficinaRepository.ObtenerTodosLosRegistros(Dia, Mes, Año) ?? new List<DTAtencionCliente>();
+        clientesAtencion = OficinaRepository.ObtenerTodosLosRegistros(Dia, Mes, Año) ?? new List<DTAtencionCliente>();
         await InvokeAsync(StateHasChanged); // Actualiza la UI
     }
 }
