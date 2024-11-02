@@ -8,6 +8,7 @@
 @inject IOperarioRepository OperarioRepository
 @inject NavigationManager NavigationManager
 @inject IHubContext<BlazorApp.Hubs.NotificacionesHub> HubContext
+@inject IHubContext<BlazorApp.Hubs.OficinasHub> HubContext
 @inject IJSRuntime JS // Inyecta IJSRuntime
 
 <h1>Atención al Cliente</h1>
@@ -49,6 +50,7 @@
                                 <RadzenButton Text="Atender Cliente"
                                               Click="@(async args => {
                   // Notificar usando HubContext cuando se atiende al cliente
+                  await HubContext.Clients.All.SendAsync("ReceiveOficinas");
                   await HubContext.Clients.All.SendAsync("LlamandoCliente", cliente.Id, nombreOperario);
                   NavigationManager.NavigateTo($"/detalleAtencionCliente/{cliente.Id}/{operarioId}/{oficinaId}");
               })"
