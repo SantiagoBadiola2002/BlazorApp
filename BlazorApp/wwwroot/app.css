@@ -49,3 +49,50 @@ h1:focus {
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
 }
+
+
+/* Estilos para el DataGrid de Radzen */
+.radzen-grid {
+    margin-top: 20px;
+    width: 100%;
+    font-family: Arial, sans-serif;
+}
+
+    .radzen-grid .rz-header-row {
+        background-color: #004080;
+        color: white;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .radzen-grid .rz-datagrid-cell {
+        padding: 10px;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+    }
+
+        .radzen-grid .rz-datagrid-cell:nth-child(odd) {
+            background-color: #f9f9f9;
+        }
+
+        .radzen-grid .rz-datagrid-cell:nth-child(even) {
+            background-color: #ffffff;
+        }
+
+        .radzen-grid .rz-datagrid-cell:hover {
+            background-color: #e6f7ff;
+        }
+
+    .radzen-grid .rz-datagrid-cell,
+    .radzen-grid .rz-header-cell {
+        border-right: 1px solid #ddd;
+    }
+
+        .radzen-grid .rz-header-cell:last-child,
+        .radzen-grid .rz-datagrid-cell:last-child {
+            border-right: none;
+        }
+
+    .radzen-grid .rz-datagrid-row:nth-child(even) {
+        background-color: #f5faff;
+    }
