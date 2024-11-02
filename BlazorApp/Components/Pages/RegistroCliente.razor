@@ -8,6 +8,8 @@
 @inject IClienteRepository ClienteRepository
 @inject IOficinaRepository OficinaRepository
 @inject IHubContext<BlazorApp.Hubs.NotificacionesHub> HubContext;
+@inject IHubContext<BlazorApp.Hubs.OficinasHub> HubContext;
+
 
 <h3>Registro de Cliente en Oficina: @nombreOficina</h3>
 
@@ -19,6 +21,7 @@ else
 {
     <RadzenTextBox @bind-Value="cedula" Placeholder="Ingrese su cédula" Style="width: 20%;" />
     <RadzenButton Text="Registrar" Click="@RegistrarCliente" Disabled="@(string.IsNullOrEmpty(cedula))" />
+    HubContext.Clients.All.SendAsync("ReceiveOficinas");
 
     <!-- Alerta de registro -->
     @if (alertVisible)
@@ -46,6 +49,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         await CargarDatosDeOficina();
+        await HubContext.Clients.All.SendAsync("ReceiveOficinas");
     }
 
     private async Task CargarDatosDeOficina()
