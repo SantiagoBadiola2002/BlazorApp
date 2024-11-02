@@ -1,11 +1,12 @@
-﻿@page "/flujoCliente"
+@page "/flujoCliente"
+@rendermode InteractiveServer
 @using BlazorApp.Models.DTs
 @using BlazorApp.Models.Interfaces
 @using Microsoft.AspNetCore.SignalR.Client
 @inject IOficinaRepository OficinaRepository
 @inject NavigationManager NavigationManager
 
-<h3>Lista de Oficinas</h3>
+<h3>Flujo de Clientes en Espera</h3>
 
 @if (oficinas == null)
 {
@@ -13,19 +14,26 @@
 }
 else
 {
-    <button @onclick="LoadOficinasAsync">Actualizar Oficinas</button>
-    <RadzenDataGrid AllowFiltering="true" AllowSorting="true" PageSize="5" AllowPaging="true" Data="@oficinas" ColumnWidth="300px" @key="oficinas?.Count">
+    <RadzenDataGrid Data="@oficinas"  @key="oficinas?.Count">
         <Columns>
-            <RadzenDataGridColumn Title="Clientes" Width="300px">
+            <!-- Columna para el nombre de la oficina -->
+            <RadzenDataGridColumn  />
+
+            <!-- Columna con el gráfico de clientes y el nombre de la oficina dentro del gráfico -->
+            <RadzenDataGridColumn >
                 <Template Context="data">
                     @{
                         var clienteCount = data.ClientesIds.Count();
                         var rectColor = clienteCount < 5 ? "green" : clienteCount < 10 ? "yellow" : "red";
                         var rectWidth = Math.Max(clienteCount * 20, 0);
                     }
-                    <svg width="100%" height="30">
-                        <rect width="@rectWidth" height="20" fill="@rectColor" />
-                        <text x="@(rectWidth + 5)" y="15" fill="black">@clienteCount</text>
+                    <svg width="100%" height="40">
+                        <!-- Nombre de la oficina dentro del gráfico -->
+                        <text x="5" y="15" fill="black" font-weight="bold">@data.Nombre</text>
+                        <!-- Rectángulo representando la cantidad de clientes -->
+                        <rect y="20" width="@rectWidth" height="20" fill="@rectColor" />
+                        <!-- Texto con el número de clientes junto al gráfico -->
+                        <text x="@(rectWidth + 10)" y="35" fill="black">@clienteCount</text>
                     </svg>
                 </Template>
             </RadzenDataGridColumn>
@@ -34,7 +42,7 @@ else
 }
 
 @code {
-    private List<DTOficina> oficinas;
+    private List<DTOficina> oficinas = new List<DTOficina>();
     private HubConnection hubConnection;
 
     protected override async Task OnInitializedAsync()
@@ -47,7 +55,7 @@ else
     {
         try
         {
-            oficinas =  OficinaRepository.ListarClientesOficinasDTO() ?? new List<DTOficina>();
+            oficinas = OficinaRepository.ListarClientesOficinasDTO();
             await InvokeAsync(StateHasChanged); // Actualiza la UI
         }
         catch (Exception ex)
@@ -64,22 +72,20 @@ else
             .WithUrl(NavigationManager.ToAbsoluteUri("/oficinasHub"))
             .Build();
 
-        hubConnection.On<List<DTOficina>>("ReceiveOficinas", (updatedOficinas) =>
+        // Configura SignalR para recargar las oficinas cuando haya cambios
+        hubConnection.On("ReceiveOficinas", async () =>
         {
-            oficinas = new List<DTOficina>(updatedOficinas); // Actualiza oficinas directamente
-            InvokeAsync(StateHasChanged); // Refresca la UI en tiempo real
+            await LoadOficinasAsync();  // Recarga la lista de oficinas
         });
 
         await hubConnection.StartAsync();
     }
 
-
     public async ValueTask DisposeAsync()
     {
         if (hubConnection != null)
         {
-            await hubConnection.DisposeAsync();
+            await hubConnection.DisposeAsync();  // Asegura que se cierre la conexión de SignalR
         }
     }
 }
-
