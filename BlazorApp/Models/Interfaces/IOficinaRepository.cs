@@ -1,4 +1,4 @@
-using BlazorApp.Models.DTs;
+﻿using BlazorApp.Models.DTs;
 
 namespace BlazorApp.Models.Interfaces
 {
@@ -9,7 +9,6 @@ namespace BlazorApp.Models.Interfaces
         List<DTOficina> ListarClientesOficinasDTO();
         List<DTAtencionCliente> ObtenerTodosLosRegistros(int dia, int mes, int anio);
         List<DTAtencionCliente> ObtenerClientesPorMes(int año);
-        public List<int> ObtenerAñosDisponibles();
         void AgregarOficina(Oficina oficina);
         void ActualizarOficina(Oficina oficina);
         void EliminarOficina(int id);
@@ -17,7 +16,7 @@ namespace BlazorApp.Models.Interfaces
         List<DTCliente> ObtenerClientesProcesandoPorOficinaDTO(int oficinaId);
         void RegistrarClienteEnOficina(int oficinaId, DTCliente nuevoCliente);
         void AtenderCliente(int clienteId, int operarioId, int oficinaId, DateTime fecha, int Duracion);
-        // DTAdministrador ObtenerAdministradorPorIdDTO(int id);
-        // DTGerenteCalidad ObtenerGerenteCalidadPorIdDTO(int id);
+        public List<int> ObtenerAñosDisponibles();
+
     }
 }

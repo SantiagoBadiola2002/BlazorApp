@@ -8,7 +8,7 @@
 @inject IOperarioRepository OperarioRepository
 @inject NavigationManager NavigationManager
 @inject IHubContext<BlazorApp.Hubs.NotificacionesHub> HubContext
-@inject IHubContext<BlazorApp.Hubs.OficinasHub> HubContext
+@inject IHubContext<BlazorApp.Hubs.OficinasHub> OficinasHubContext
 @inject IJSRuntime JS // Inyecta IJSRuntime
 
 <h1>Atención al Cliente</h1>
@@ -50,8 +50,9 @@
                                 <RadzenButton Text="Atender Cliente"
                                               Click="@(async args => {
                   // Notificar usando HubContext cuando se atiende al cliente
-                  await HubContext.Clients.All.SendAsync("ReceiveOficinas");
+                 // await OficinasHubContext.Clients.All.SendAsync("ReceiveOficinas");
                   await HubContext.Clients.All.SendAsync("LlamandoCliente", cliente.Id, nombreOperario);
+                  await HubContext.Clients.All.SendAsync("RefrescarPaginaAtencionCliente");
                   NavigationManager.NavigateTo($"/detalleAtencionCliente/{cliente.Id}/{operarioId}/{oficinaId}");
               })"
                                               Style="width: 100%" />
@@ -76,7 +77,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Obtener los parámetros de consulta "oficinaId" y "operarioId"
         var uri = new Uri(NavigationManager.Uri);
         var queryParams = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
 
@@ -88,7 +88,7 @@
                 this.oficinaId = oficinaId;
                 this.operarioId = operarioId;
 
-                var operarioDTO =  OperarioRepository.GetOperarioById(operarioId);
+                var operarioDTO = OperarioRepository.GetOperarioById(operarioId);
                 if (operarioDTO != null)
                 {
                     nombreOperario = operarioDTO.Nombre;
@@ -96,32 +96,37 @@
 
                 await CargarClientesEnEspera();
 
-                // Configurar la conexión al hub y suscribirse al evento de refresco
-                hubConnection = new HubConnectionBuilder()
-                    .WithUrl(NavigationManager.ToAbsoluteUri("/notificacionesHub"))
-                    .Build();
-
-                hubConnection.On("RefrescarPaginaAtencionCliente", async () =>
-                {
-                    // Recargar completamente la página al recibir la notificación
-                    //await Task.Delay(100);
-                    //NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
-                    clientesEnEspera.Clear();
-                    CargarClientesEnEspera();
-                    await InvokeAsync(StateHasChanged);
-                });
-
-                await hubConnection.StartAsync();
+                // Inicializar la conexión y suscribirse a eventos
+                await ConfigurarConexionHub();
             }
         }
     }
 
+    private async Task ConfigurarConexionHub()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/notificacionesHub"))
+            .WithAutomaticReconnect() // Habilita reconexión automática
+            .Build();
+
+        // Configura el evento para refrescar la página de atención al cliente
+        hubConnection.On("RefrescarPaginaAtencionCliente", async () =>
+        {
+            await CargarClientesEnEspera();
+            await Task.Delay(100); // Añade un pequeño retraso para asegurar el refresco
+            await InvokeAsync(StateHasChanged);
+        });
+
+        // Inicia la conexión al hub
+        await hubConnection.StartAsync();
+        Console.WriteLine("Conexión al hub inicializada");
+    }
 
     private async Task CargarClientesEnEspera()
     {
         if (oficinaId > 0)
         {
-            clientesEnEspera =  OficinaRepository.ObtenerClientesEnEsperaPorOficinaDTO(oficinaId);
+            clientesEnEspera = OficinaRepository.ObtenerClientesEnEsperaPorOficinaDTO(oficinaId);
             var oficinaDTO = OficinaRepository.ObtenerOficinaPorIdDTO(oficinaId);
             if (oficinaDTO != null)
             {
@@ -132,13 +137,8 @@
         {
             clientesEnEspera.Clear();
         }
-    }
 
-    public async ValueTask DisposeAsync()
-    {
-        if (hubConnection != null)
-        {
-            //await hubConnection.DisposeAsync();
-        }
+        await InvokeAsync(StateHasChanged);
+        await Task.Delay(100); // Añade un retraso para permitir que los cambios se reflejen visualmente
     }
 }

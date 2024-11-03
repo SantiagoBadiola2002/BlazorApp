@@ -8,7 +8,7 @@
 @inject IClienteRepository ClienteRepository
 @inject IOficinaRepository OficinaRepository
 @inject IHubContext<BlazorApp.Hubs.NotificacionesHub> HubContext;
-@inject IHubContext<BlazorApp.Hubs.OficinasHub> HubContext;
+@inject IHubContext<BlazorApp.Hubs.OficinasHub> OficinasHubContext;
 
 
 <h3>Registro de Cliente en Oficina: @nombreOficina</h3>
@@ -21,7 +21,7 @@ else
 {
     <RadzenTextBox @bind-Value="cedula" Placeholder="Ingrese su cédula" Style="width: 20%;" />
     <RadzenButton Text="Registrar" Click="@RegistrarCliente" Disabled="@(string.IsNullOrEmpty(cedula))" />
-    HubContext.Clients.All.SendAsync("ReceiveOficinas");
+    OficinasHubContext.Clients.All.SendAsync("ReceiveOficinas");
 
     <!-- Alerta de registro -->
     @if (alertVisible)
@@ -49,7 +49,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         await CargarDatosDeOficina();
-        await HubContext.Clients.All.SendAsync("ReceiveOficinas");
+        await OficinasHubContext.Clients.All.SendAsync("ReceiveOficinas");
     }
 
     private async Task CargarDatosDeOficina()
@@ -89,9 +89,11 @@ else
             alertMessage = $"Cliente registrado exitosamente en la oficina {nombreOficina}.";
             isError = false;
             cedula = string.Empty;
-            await MostrarAlertaTemporal();
 
             await HubContext.Clients.All.SendAsync("RefrescarPagina", 0);
+            await HubContext.Clients.All.SendAsync("RefrescarPaginaAtencionCliente");
+
+            await MostrarAlertaTemporal();
         }
         catch (Exception ex)
         {

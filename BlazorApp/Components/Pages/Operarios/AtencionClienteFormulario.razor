@@ -8,6 +8,7 @@
 @inject IClienteRepository ClienteRepository
 @inject NavigationManager NavigationManager
 @inject IHubContext<BlazorApp.Hubs.NotificacionesHub> HubContext;
+@inject IHubContext<BlazorApp.Hubs.Atencionhub> AtencionHubContext
 
 <h1>Atención al Cliente</h1>
 
@@ -63,6 +64,7 @@
 
         // Notificar a todos los clientes para que refresquen la página
         HubContext.Clients.All.SendAsync("RefrescarPagina", clienteId);
+        AtencionHubContext.Clients.All.SendAsync("ReceiveOficinas");
 
         NavigationManager.NavigateTo($"/AtencionAlCliente?oficinaId={oficinaId}&operarioId={operarioId}");
     }
@@ -72,8 +74,8 @@
         ClienteRepository.ActualizarEstadoClientePorId(clienteId, Models.EstadoCliente.Atendido);
 
         // Notificar a todos los clientes para que refresquen la página
-        await HubContext.Clients.All.SendAsync("RefrescarPagina");
-
+        await HubContext.Clients.All.SendAsync("RefrescarPagina", clienteId);
+        AtencionHubContext.Clients.All.SendAsync("ReceiveOficinas");
         NavigationManager.NavigateTo($"/AtencionAlCliente?oficinaId={oficinaId}&operarioId={operarioId}");
     }
 }

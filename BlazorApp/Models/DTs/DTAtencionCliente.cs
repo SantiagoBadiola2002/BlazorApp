@@ -1,4 +1,4 @@
-namespace BlazorApp.Models.DTs
+﻿namespace BlazorApp.Models.DTs
 {
     public class DTAtencionCliente
     {
@@ -12,7 +12,7 @@ namespace BlazorApp.Models.DTs
         public int Mes => Fecha.Month;        // Número del mes (1-12) para ordenar
         public string NombreMes => $"{Fecha.ToString("MMMM")} {Fecha.Year}"; // Nombre del mes y el año
 
-        public string NombreOperario { get; set; } 
+        public string NombreOperario { get; set; }
         public string NombreOficina { get; set; }
 
 

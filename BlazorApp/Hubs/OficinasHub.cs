@@ -1,4 +1,4 @@
-using BlazorApp.Models.DTs;
+﻿using BlazorApp.Models.DTs;
 using Microsoft.AspNetCore.SignalR;
 
 namespace BlazorApp.Hubs

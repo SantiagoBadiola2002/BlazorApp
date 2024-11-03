@@ -1,9 +1,27 @@
 ﻿@page "/gestionDeCalidad"
 
-<h3>Panel de Reportes</h3>
+<RadzenCard Variant="Variant.Outlined" Style="text-align: center; margin-bottom: 1rem;">
+    <h1>Panel de Reportes</h1>
+</RadzenCard>
 
-<nav class="navbar">
-    <NavLink href="/mesTramite" class="nav-link">Mes de Trámite</NavLink>
-    <NavLink href="/flujoCliente" class="nav-link">Flujo de Cliente</NavLink>
-    <NavLink href="/tiempoTramite" class="nav-link">Tiempo de Trámite</NavLink>
-</nav>
+<RadzenCard Variant="Variant.Outlined">
+    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Gap="1rem">
+        <RadzenLink Text="Mes de Trámite" Path="/mesTramite" Class="nav-link link-style" />
+        <RadzenLink Text="Flujo de Cliente" Path="/flujoCliente" Class="nav-link link-style" />
+        <RadzenLink Text="Listado de Atención" Path="/listadoAtenciones" Class="nav-link link-style" />
+        <RadzenLink Text="Tiempo Atención" Path="/tiempoAtencionXOperarios" Class="nav-link link-style" />
+    </RadzenStack>
+</RadzenCard>
+
+<style>
+    .link-style {
+        font-size: 1.2rem; /* Tamaño de letra ligeramente más grande */
+        color: #009879; /* Color verde para el texto */
+        text-decoration: none; /* Sin subrayado */
+        font-weight: bold;
+    }
+
+        .link-style:hover {
+            color: #1b6ec2; /* Un tono de verde más oscuro al pasar el cursor */
+        }
+</style>

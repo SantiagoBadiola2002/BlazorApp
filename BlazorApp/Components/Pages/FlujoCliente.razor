@@ -1,4 +1,4 @@
-@page "/flujoCliente"
+﻿@page "/flujoCliente"
 @rendermode InteractiveServer
 @using BlazorApp.Models.DTs
 @using BlazorApp.Models.Interfaces
@@ -14,13 +14,13 @@
 }
 else
 {
-    <RadzenDataGrid Data="@oficinas"  @key="oficinas?.Count">
+    <RadzenDataGrid Data="@oficinas" @key="oficinas?.Count">
         <Columns>
             <!-- Columna para el nombre de la oficina -->
-            <RadzenDataGridColumn  />
+            <RadzenDataGridColumn />
 
             <!-- Columna con el gráfico de clientes y el nombre de la oficina dentro del gráfico -->
-            <RadzenDataGridColumn >
+            <RadzenDataGridColumn>
                 <Template Context="data">
                     @{
                         var clienteCount = data.ClientesIds.Count();

@@ -1,8 +1,10 @@
 ﻿@page "/mesTramite"
 @rendermode InteractiveServer
+@using Microsoft.AspNetCore.SignalR.Client
 @using BlazorApp.Models.DTs
 @using BlazorApp.Models.Interfaces
 @inject IOficinaRepository OficinaRepository
+@inject NavigationManager Navigation
 @using Radzen
 @using Radzen.Blazor
 
@@ -20,37 +22,64 @@
 
 @code {
     private List<DTAtencionCliente> clientesAtencion = new List<DTAtencionCliente>();
-    public int Año { get; set; } = DateTime.Now.Year; // Valor predeterminado al año actual
+    public int Año { get; set; } = DateTime.Now.Year;
     private List<AñoItem> añosDisponibles = new List<AñoItem>();
+    private HubConnection hubConnection;
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadAñosDisponiblesAsync();  // Carga los años disponibles
-        await LoadOficinasAsync();          // Carga inicial de oficinas
+        await LoadAñosDisponiblesAsync();
+        await LoadOficinasAsync();
+        await InitializeSignalRConnection(); // Inicializa la conexión SignalR
     }
 
     private async Task LoadAñosDisponiblesAsync()
     {
-        // Cargar los años disponibles desde la base de datos
-        var años = OficinaRepository.ObtenerAñosDisponibles(); // Este método debe devolver una lista de años
-        añosDisponibles = años.Select(a => new AñoItem { Valor = a }).ToList(); // No se asigna a Texto
+        var años = OficinaRepository.ObtenerAñosDisponibles();
+        añosDisponibles = años.Select(a => new AñoItem { Valor = a }).ToList();
     }
 
     private async Task LoadOficinasAsync()
     {
-        // Cargar datos para el año seleccionado
         clientesAtencion = OficinaRepository.ObtenerClientesPorMes(Año) ?? new List<DTAtencionCliente>();
     }
 
     private async Task ActualizarGraficoAsync()
     {
-        await LoadOficinasAsync(); // Carga los datos del año seleccionado
-        await InvokeAsync(StateHasChanged); // Refresca la interfaz después de cargar los datos
+        await LoadOficinasAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task InitializeSignalRConnection()
+    {
+        // Establece la conexión con SignalR
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("/atencionHub")) // URL del Hub en el servidor
+            .Build();
+
+        // Escucha el mensaje "ReceiveOficinas" del Hub
+        hubConnection.On("ReceiveOficinas", async () =>
+        {
+            await ActualizarGraficoAsync();
+            await InvokeAsync(StateHasChanged);
+        });
+
+        // Inicia la conexión
+        await hubConnection.StartAsync();
+    }
+
+    // Limpia la conexión cuando el componente se elimina
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
     }
 
     public class AñoItem
     {
         public int Valor { get; set; }
-        public string Texto => Valor.ToString(); // Texto a mostrar en el dropdown (solo lectura)
+        public string Texto => Valor.ToString();
     }
 }

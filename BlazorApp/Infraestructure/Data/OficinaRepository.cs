@@ -96,8 +96,6 @@ namespace BlazorApp.Infraestructure.Data
             }).ToList();
         }
 
-
-
         public List<DTAtencionCliente> ObtenerClientesPorMes(int año)
         {
             var registros = _contexto.RegistrosDeAtencion
@@ -117,20 +115,17 @@ namespace BlazorApp.Infraestructure.Data
             return clientesPorMes;
         }
 
+        public List<int> ObtenerAñosDisponibles() {
+            // Obtener los años únicos de la tabla RegistroDeAtencion
+            var registros = _contexto.RegistrosDeAtencion
 
-        public List<int> ObtenerAñosDisponibles()
-{
-    {
-                // Obtener los años únicos de la tabla RegistroDeAtencion
-                var registros = _contexto.RegistrosDeAtencion
+                .Select(r => r.Fecha.Year) // Asegúrate de que tienes un campo Fecha
+        .Distinct()
+        .OrderBy(year => year) // Ordenar los años
+        .ToList();
+            return registros;
+        }
 
-                    .Select(r => r.Fecha.Year) // Asegúrate de que tienes un campo Fecha
-            .Distinct()
-            .OrderBy(year => year) // Ordenar los años
-            .ToList();
-          return registros;
-    }
-}
 
         public List<DTCliente> ObtenerClientesEnEsperaPorOficinaDTO(int oficinaId)
         {
@@ -281,5 +276,9 @@ namespace BlazorApp.Infraestructure.Data
             _contexto.RegistrosDeAtencion.Add(atencion);
             _contexto.SaveChanges();
         }
+
+
     }
+
+
 }

@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 
-public class Atencionhub : Hub
+namespace BlazorApp.Hubs
 {
-    public async Task NotifyClients()
+    public class Atencionhub : Hub
     {
-        await Clients.All.SendAsync("ReceiveMessage", "Los datos han sido actualizados.");
+        public async Task NotifyClients()
+        {
+            await Clients.All.SendAsync("ReceiveMessage", "Los datos han sido actualizados.");
+        }
     }
 }

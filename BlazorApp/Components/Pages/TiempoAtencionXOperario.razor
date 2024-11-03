@@ -1,0 +1,108 @@
+﻿@page "/tiempoAtencionXOperarios"
+@rendermode InteractiveServer
+@using BlazorApp.Models
+@using BlazorApp.Models.DTs
+@using BlazorApp.Models.Interfaces
+@using BlazorApp.Models.BaseDeDatos
+@using Microsoft.AspNetCore.SignalR.Client
+@using Microsoft.EntityFrameworkCore
+@inject IOficinaRepository OficinaRepository
+@inject NavigationManager NavigationManager
+@inject ContextoBD dbContext
+
+<h1 style="text-align:center">Tiempo Atención por día y operario</h1>
+@* Controles de filtro *@
+<RadzenCard Variant="Variant.Outlined">
+    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap">
+        <RadzenDatePicker @bind-Value="selectedDate" Placeholder="Seleccionar fecha" />
+        <RadzenDropDown @bind-Value="selectedOperarioId" Data="@operarios" TextProperty="Nombre" ValueProperty="Id" Placeholder="Seleccionar operario" />
+        <RadzenButton Click="@CargarDatos" Text="Filtrar" />
+    </RadzenStack>
+</RadzenCard>
+
+<RadzenStack class="rz-p-0 rz-p-md-6 rz-p-lg-12">
+    <RadzenCard Variant="Variant.Outlined">
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                <RadzenCheckBox @bind-Value="@smooth" Name="smooth"></RadzenCheckBox>
+                <RadzenLabel Text="Suavizar" Component="smooth" />
+            </RadzenStack>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                <RadzenCheckBox @bind-Value="@showDataLabels" Name="dataLabels"></RadzenCheckBox>
+                <RadzenLabel Text="Mostrar etiquetas" Component="dataLabels" />
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenCard>
+
+    <RadzenChart>
+        <RadzenChartTooltipOptions Shared="@sharedTooltip" />
+        <RadzenLineSeries Smooth="@smooth" Data="@tiempoDeAtencionData" CategoryProperty="HoraFormatted" Title="Tiempo de Atención" ValueProperty="DuracionAtencion">
+            <RadzenMarkers Visible="@showMarkers" MarkerType="MarkerType.Circle" />
+            <RadzenSeriesDataLabels Visible="@showDataLabels" />
+        </RadzenLineSeries>
+        <RadzenCategoryAxis Padding="20">
+            <RadzenAxisTitle Text="Hora" />
+        </RadzenCategoryAxis>
+        <RadzenValueAxis>
+            <RadzenAxisTitle Text="Duración de Atención (minutos)" />
+            <RadzenGridLines Visible="true" />
+        </RadzenValueAxis>
+    </RadzenChart>
+</RadzenStack>
+
+@code {
+    bool smooth = false;
+    bool sharedTooltip = true;
+    bool showDataLabels = false;
+    bool showMarkers = true;
+
+    DateTime? selectedDate = null;
+    int? selectedOperarioId = null;
+
+    List<Operario> operarios = new List<Operario>();
+    List<DataItem> tiempoDeAtencionData = new List<DataItem>();
+
+    class DataItem
+    {
+        public DateTime Hora { get; set; }
+        public int DuracionAtencion { get; set; }
+
+        // Propiedad calculada para formatear la hora
+        public string HoraFormatted => Hora.ToString("HH:mm"); // Formato de 24 horas, cambia a "hh:mm tt" para 12 horas
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Filtramos solo los operarios con el rol de "Operario"
+        operarios = await dbContext.Operarios
+            .Where(o => o.RolOperario == Rol.Operario)
+            .ToListAsync();
+    }
+
+    async Task CargarDatos()
+    {
+        var query = dbContext.RegistrosDeAtencion.AsQueryable();
+
+        if (selectedDate.HasValue)
+        {
+            query = query.Where(r => r.Fecha.Date == selectedDate.Value.Date);
+        }
+
+        if (selectedOperarioId.HasValue)
+        {
+            query = query.Where(r => r.OperarioId == selectedOperarioId.Value);
+        }
+
+        var registros = await query
+            .OrderBy(r => r.Fecha)
+            .Select(r => new DataItem
+                {
+                    Hora = r.Fecha,
+                    DuracionAtencion = r.DuracionAtencion // Ahora dejamos los minutos sin conversión
+                })
+            .ToListAsync();
+
+        tiempoDeAtencionData = registros;
+        StateHasChanged();
+    }
+}

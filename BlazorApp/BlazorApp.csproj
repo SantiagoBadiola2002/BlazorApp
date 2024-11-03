@@ -36,16 +36,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <UpToDateCheckInput Remove="Components\Pages\InfoOficinas.razor" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <_ContentIncludedByDefault Remove="Components\Pages\InfoOficinas.razor" />
+    <_ContentIncludedByDefault Remove="Components\Pages\MesTramite.razor" />
     <_ContentIncludedByDefault Remove="Components\Pages\redirecciones\SelectOficinaRegistrarClientes.razor" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Components\Pages\InfoOficinas.razor" />
+    <None Include="Components\Pages\MesTramite.razor" />
     <None Include="Components\Pages\redirecciones\LoginAdmininistradorAOficinasAdmin.razor" />
     <None Include="Components\Pages\redirecciones\LoginAdmininistradorAOperariosAdmin.razor" />
     <None Include="Components\Pages\redirecciones\SelectOficinaRegistrarClientes.razor" />
@@ -54,6 +50,10 @@
 
   <ItemGroup>
     <UpToDateCheckInput Remove="Components\Pages\redirecciones\SelectOficinaRegistrarClientes.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Components\Pages\MesTramite.razor" />
   </ItemGroup>
 
 </Project>
