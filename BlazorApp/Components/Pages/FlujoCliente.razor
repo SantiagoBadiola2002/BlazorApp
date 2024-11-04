@@ -1,4 +1,4 @@
-﻿@page "/flujoCliente"
+@page "/flujoCliente"
 @rendermode InteractiveServer
 @using BlazorApp.Models.DTs
 @using BlazorApp.Models.Interfaces
@@ -14,31 +14,36 @@
 }
 else
 {
-    <RadzenDataGrid Data="@oficinas" @key="oficinas?.Count">
+    <RadzenDataGrid Data="@oficinas" TItem="DTOficina" @key="oficinas?.Count">
         <Columns>
             <!-- Columna para el nombre de la oficina -->
-            <RadzenDataGridColumn />
+            <RadzenDataGridColumn TItem="DTOficina" Property="Nombre" Title="Oficina" />
 
             <!-- Columna con el gráfico de clientes y el nombre de la oficina dentro del gráfico -->
-            <RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="DTOficina">
                 <Template Context="data">
                     @{
                         var clienteCount = data.ClientesIds.Count();
-                        var rectColor = clienteCount < 5 ? "green" : clienteCount < 10 ? "yellow" : "red";
-                        var rectWidth = Math.Max(clienteCount * 20, 0);
+                        var rectColor = clienteCount < 5 ? "#6BCB77" : clienteCount < 10 ? "#FFD166" : "#EF476F";
+                        var maxRectWidth = 200;
+                        var rectWidth = Math.Min(clienteCount * 20, maxRectWidth);
                     }
-                    <svg width="100%" height="40">
+                    <svg width="100%" height="50">
                         <!-- Nombre de la oficina dentro del gráfico -->
-                        <text x="5" y="15" fill="black" font-weight="bold">@data.Nombre</text>
+                        <!-- Rectángulo de fondo -->
+                        <rect x="5" y="25" width="@maxRectWidth" height="20" fill="#F0F0F0" rx="5" ry="5" />
                         <!-- Rectángulo representando la cantidad de clientes -->
-                        <rect y="20" width="@rectWidth" height="20" fill="@rectColor" />
+                        <rect x="5" y="25" width="@rectWidth" height="20" fill="@rectColor" rx="5" ry="5">
+                            <title>Cantidad de clientes: @clienteCount</title>
+                        </rect>
                         <!-- Texto con el número de clientes junto al gráfico -->
-                        <text x="@(rectWidth + 10)" y="35" fill="black">@clienteCount</text>
+                        <text x="@(rectWidth + 15)" y="40" fill="black" font-weight="bold">@clienteCount clientes</text>
                     </svg>
                 </Template>
             </RadzenDataGridColumn>
         </Columns>
     </RadzenDataGrid>
+
 }
 
 @code {
