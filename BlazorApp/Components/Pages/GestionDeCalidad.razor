@@ -1,4 +1,6 @@
-﻿@page "/gestionDeCalidad"
+@page "/gestionDeCalidad"
+@rendermode InteractiveServer
+@using BlazorApp.Components.Pages // Asegúrate de que sea la ruta correcta para tus componentes
 
 <RadzenCard Variant="Variant.Outlined" Style="text-align: center; margin-bottom: 1rem;">
     <h1>Panel de Reportes</h1>
@@ -6,11 +8,31 @@
 
 <RadzenCard Variant="Variant.Outlined">
     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Gap="1rem">
-        <RadzenLink Text="Mes de Trámite" Path="/mesTramite" Class="nav-link link-style" />
-        <RadzenLink Text="Flujo de Cliente" Path="/flujoCliente" Class="nav-link link-style" />
-        <RadzenLink Text="Listado de Atención" Path="/listadoAtenciones" Class="nav-link link-style" />
-        <RadzenLink Text="Tiempo Atención" Path="/tiempoAtencionXOperarios" Class="nav-link link-style" />
+        <RadzenButton Text="Mes de Trámite" Click="@(() => SetActivePage("MesTramite"))" Class="nav-link link-style" />
+        <RadzenButton Text="Flujo de Cliente" Click="@(() => SetActivePage("FlujoCliente"))" Class="nav-link link-style" />
+        <RadzenButton Text="Listado de Atención" Click="@(() => SetActivePage("ListadoAtenciones"))" Class="nav-link link-style" />
+        <RadzenButton Text="Tiempo Atención" Click="@(() => SetActivePage("TiempoAtencion"))" Class="nav-link link-style" />
     </RadzenStack>
+</RadzenCard>
+
+<!-- Renderizado condicional de las páginas -->
+<RadzenCard Variant="Variant.Outlined" Style="margin-top: 2rem;">
+    @if (activePage == "MesTramite")
+    {
+        <MesTramite />
+    }
+    else if (activePage == "FlujoCliente")
+    {
+        <FlujoCliente />
+    }
+    else if (activePage == "ListadoAtenciones")
+    {
+        <ListadoAtenciones />
+    }
+    else if (activePage == "TiempoAtencion")
+    {
+        <TiempoAtencionXOperario />
+    }
 </RadzenCard>
 
 <style>
@@ -21,7 +43,16 @@
         font-weight: bold;
     }
 
-        .link-style:hover {
-            color: #1b6ec2; /* Un tono de verde más oscuro al pasar el cursor */
-        }
+    .link-style:hover {
+        color: #1b6ec2; /* Un tono de verde más oscuro al pasar el cursor */
+    }
 </style>
+
+@code {
+    private string activePage = "FlujoCliente"; // Página activa inicial
+
+    private void SetActivePage(string page)
+    {
+        activePage = page;
+    }
+}
