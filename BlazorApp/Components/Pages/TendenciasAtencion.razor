@@ -1,0 +1,83 @@
+﻿@page "/tendenciasAtencion"
+@rendermode InteractiveServer
+@using BlazorApp.Models
+@using BlazorApp.Models.Interfaces
+@using BlazorApp.Models.BaseDeDatos
+@using Microsoft.AspNetCore.SignalR.Client
+@using Microsoft.EntityFrameworkCore
+@inject ContextoBD dbContext
+
+<h1 style="text-align:center">Análisis de Tendencias de Atención por Mes</h1>
+
+<div style="display: flex; align-items: center; gap: 1rem;">
+    <!-- Selector de año con actualización automática -->
+    <RadzenDropDown @bind-Value="selectedYear" Data="@years" Placeholder="Seleccionar año" Change="@CargarDatos" />
+</div>
+
+<RadzenStack>
+    <RadzenChart>
+        <RadzenLineSeries Data="@tiemposDeAtencion" CategoryProperty="MesFormatted" ValueProperty="DuracionAtencionPromedio" Title="Duración Promedio de Atención">
+            <RadzenMarkers Visible="true" MarkerType="MarkerType.Circle" />
+        </RadzenLineSeries>
+        <RadzenCategoryAxis>
+            <RadzenAxisTitle Text="Mes" />
+            <RadzenGridLines Visible="true" />
+        </RadzenCategoryAxis>
+        <RadzenValueAxis>
+            <RadzenAxisTitle Text="Tiempo (minutos)" />
+            <RadzenGridLines Visible="true" />
+        </RadzenValueAxis>
+    </RadzenChart>
+</RadzenStack>
+
+@code {
+    class TendenciaDataItem
+    {
+        public int Mes { get; set; }
+        public double DuracionAtencionPromedio { get; set; }
+        public string MesFormatted => new DateTime(1, Mes, 1).ToString("MMMM"); // Nombre del mes en español
+    }
+
+    List<TendenciaDataItem> tiemposDeAtencion = new List<TendenciaDataItem>();
+    List<int> years = new List<int>(); // Lista de años disponibles en la base de datos
+    int selectedYear; // Año seleccionado
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Obtener los años únicos de la base de datos con registros
+        years = await dbContext.RegistrosDeAtencion
+            .Select(r => r.Fecha.Year)
+            .Distinct()
+            .OrderByDescending(y => y) // Opcional: orden descendente
+            .ToListAsync();
+
+        // Seleccionar el año más reciente por defecto
+        if (years.Any())
+        {
+            selectedYear = years.First();
+        }
+
+        await CargarDatos();
+    }
+
+    async Task CargarDatos()
+    {
+        // Filtrar los registros por el año seleccionado y agrupar por mes
+        var registros = await dbContext.RegistrosDeAtencion
+            .Where(r => r.Fecha.Year == selectedYear)
+            .GroupBy(r => r.Fecha.Month)
+            .Select(g => new TendenciaDataItem
+                {
+                    Mes = g.Key,
+                    DuracionAtencionPromedio = g.Average(r => r.DuracionAtencion)
+                })
+            .ToListAsync();
+
+        // Asegurarse de que haya datos para todos los meses
+        tiemposDeAtencion = Enumerable.Range(1, 12)
+            .Select(m => registros.FirstOrDefault(r => r.Mes == m) ?? new TendenciaDataItem { Mes = m, DuracionAtencionPromedio = 0 })
+            .ToList();
+
+        StateHasChanged();
+    }
+}
