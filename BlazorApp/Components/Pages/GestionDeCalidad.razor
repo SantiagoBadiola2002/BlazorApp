@@ -12,6 +12,7 @@
         <RadzenButton Text="Flujo de Cliente" Click="@(() => SetActivePage("FlujoCliente"))" Class="nav-link link-style" />
         <RadzenButton Text="Listado de Atención" Click="@(() => SetActivePage("ListadoAtenciones"))" Class="nav-link link-style" />
         <RadzenButton Text="Tiempo Atención" Click="@(() => SetActivePage("TiempoAtencion"))" Class="nav-link link-style" />
+        <RadzenButton Text="Tendencias Atencion" Click="@(() => SetActivePage("TendenciasAtencion"))" Class="nav-link link-style" />
     </RadzenStack>
 </RadzenCard>
 
@@ -32,6 +33,10 @@
     else if (activePage == "TiempoAtencion")
     {
         <TiempoAtencionXOperario />
+    }
+    else if (activePage == "TendenciasAtencion")
+    {
+        <TendenciasAtencion />
     }
 </RadzenCard>
 
