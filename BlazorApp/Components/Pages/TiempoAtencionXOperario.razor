@@ -1,4 +1,4 @@
-﻿@page "/tiempoAtencionXOperarios"
+@page "/tiempoAtencionXOperarios"
 @rendermode InteractiveServer
 @using BlazorApp.Models
 @using BlazorApp.Models.DTs
@@ -11,7 +11,7 @@
 @inject ContextoBD dbContext
 
 <h1 style="text-align:center">Tiempo Atención por día y operario</h1>
-@* Controles de filtro *@
+
 <RadzenCard Variant="Variant.Outlined">
     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap">
         <RadzenDatePicker @bind-Value="selectedDate" Placeholder="Seleccionar fecha" />
@@ -67,16 +67,12 @@
         public DateTime Hora { get; set; }
         public int DuracionAtencion { get; set; }
 
-        // Propiedad calculada para formatear la hora
-        public string HoraFormatted => Hora.ToString("HH:mm"); // Formato de 24 horas, cambia a "hh:mm tt" para 12 horas
+        public string HoraFormatted => Hora.ToString("HH:mm"); 
     }
 
     protected override async Task OnInitializedAsync()
     {
-        // Filtramos solo los operarios con el rol de "Operario"
-        operarios = await dbContext.Operarios
-            .Where(o => o.RolOperario == Rol.Operario)
-            .ToListAsync();
+        operarios = await dbContext.Operarios.ToListAsync();
     }
 
     async Task CargarDatos()
@@ -98,7 +94,7 @@
             .Select(r => new DataItem
                 {
                     Hora = r.Fecha,
-                    DuracionAtencion = r.DuracionAtencion // Ahora dejamos los minutos sin conversión
+                    DuracionAtencion = r.DuracionAtencion
                 })
             .ToListAsync();
 
