@@ -72,8 +72,11 @@
 
     protected override async Task OnInitializedAsync()
     {
-        operarios = await dbContext.Operarios.ToListAsync();
+        operarios = await dbContext.Operarios
+                                    .Where(o => o.RolOperario == Rol.Operario)
+                                    .ToListAsync();
     }
+
 
     async Task CargarDatos()
     {
