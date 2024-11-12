@@ -5,6 +5,7 @@ using BlazorApp.Models.DTs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Build.Evaluation;
 
 namespace BlazorApp.Infraestructure.Data
 {
@@ -139,13 +140,13 @@ namespace BlazorApp.Infraestructure.Data
             }
         }
 
-        public DTOperario VerificarCredenciales(int idOficina, string nombre, string contraseña, Rol rol)
+        public DTOperario VerificarCredenciales(string nombre, string contraseña, Rol rol)
         {
+            Console.WriteLine("Verificar credenciales " + nombre + " " + contraseña + " " + rol);
             try
             {
                 var operario = _context.Operarios
-                    .FirstOrDefault(o => o.OficinaId == idOficina
-                                          && o.Nombre == nombre
+                    .FirstOrDefault(o =>  o.Nombre == nombre
                                           && o.Contraseña == contraseña
                                           && o.RolOperario == rol);
 

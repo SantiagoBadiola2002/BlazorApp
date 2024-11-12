@@ -11,6 +11,6 @@ namespace BlazorApp.Models.Interfaces
         void DeleteOperario(int id);
         DTOperario VerificarCredenciales(string nombre, string contraseña);
         List<DTOperario> ObtenerOperariosPorOficinaId(int oficinaId);
-        DTOperario VerificarCredenciales(int idOficina, string nombre, string contraseña, Rol rol);
+        DTOperario VerificarCredenciales(string nombre, string contraseña, Rol rol);
     }
 }

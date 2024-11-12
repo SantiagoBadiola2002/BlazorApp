@@ -7,26 +7,25 @@
 @inject IOperarioRepository OperarioRepository
 @inject NavigationManager NavigationManager
 
-<h1>Ingresar a administracion de oficinas</h1>
-<h1>Selecciona oficina y nombre operario</h1>
+<h1>Ingresar a administracion de operarios</h1>
 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
     <!-- DropDown para seleccionar la oficina -->
-    <RadzenDropDown @bind-Value="selectedOficinaId"
+    <!-- <RadzenDropDown @bind-Value="selectedOficinaId"
                     Data="oficinas"
                     TextProperty="Nombre"
                     ValueProperty="Id"
                     Style="width: 100%; max-width: 300px;"
                     Name="DropDownBindValue"
                     Placeholder="Seleccione una oficina"
-                    Change="@(async (args) => await OficinaSeleccionada(args))" />
+                    Change="@(async (args) => await OficinaSeleccionada(args))" /> -->
     <RadzenColumn Size="12" SizeMD="6" SizeLG="12">
         <!-- Campo para el nombre del operario -->
-        <RadzenFormField Text="Nombre del Operario" Style="width: 100%; max-width: 300px;">
+        <RadzenFormField Text="Nombre Administrador" Style="width: 100%; max-width: 300px;">
             <RadzenTextBox @bind-Value="operarioNombre" Placeholder="Ingrese su nombre" />
         </RadzenFormField>
 
         <!-- Campo para la contraseña del operario -->
-        <RadzenFormField Text="Contraseña del Operario" Style="width: 100%; max-width: 300px;">
+        <RadzenFormField Text="Contraseña Adminsitrador" Style="width: 100%; max-width: 300px;">
             <RadzenTextBox @bind-Value="operarioContraseña" Placeholder="Ingrese su contraseña" Type="password" />
         </RadzenFormField>
     </RadzenColumn>
@@ -49,10 +48,10 @@
 
 @code {
     private List<DTOficina> oficinas;
-    private int selectedOficinaId;
+    //private int selectedOficinaId;
     private string operarioNombre;
     private string operarioContraseña;
-    private bool isButtonDisabled => string.IsNullOrEmpty(operarioNombre) || string.IsNullOrEmpty(operarioContraseña) || selectedOficinaId == 0;
+    private bool isButtonDisabled => string.IsNullOrEmpty(operarioNombre) || string.IsNullOrEmpty(operarioContraseña);
 
     private bool alertVisible = false;
     private bool isError = false;
@@ -63,16 +62,16 @@
         oficinas = OficinaRepository.ObtenerTodasLasOficinasDTO();
     }
 
-    private async Task OficinaSeleccionada(object args)
-    {
-        selectedOficinaId = (int)args;
-        alertVisible = false;
-    }
+    //private async Task OficinaSeleccionada(object args)
+    //{
+   //     selectedOficinaId = (int)args;
+   //     alertVisible = false;
+   // }
 
     private async void Redirigir()
     {
         // Llama a la función VerificarCredencialesAsync con rol de Administrador
-        var operario =  OperarioRepository.VerificarCredenciales(selectedOficinaId, operarioNombre, operarioContraseña, Rol.Administrador);
+        var operario =  OperarioRepository.VerificarCredenciales(operarioNombre, operarioContraseña, Rol.Administrador);
 
         if (operario != null)
         {
